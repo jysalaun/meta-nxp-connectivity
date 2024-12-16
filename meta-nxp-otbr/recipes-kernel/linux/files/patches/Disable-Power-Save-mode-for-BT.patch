@@ -11,6 +11,8 @@ Signed-off-by: Haoran Wang <elven.wang@nxp.com>
  drivers/bluetooth/btnxpuart.c | 2 +-
  1 file changed, 1 insertion(+), 1 deletion(-)
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/drivers/bluetooth/btnxpuart.c b/drivers/bluetooth/btnxpuart.c
 index 17750fbf03bf..68cbf39c5528 100644
 --- a/drivers/bluetooth/btnxpuart.c

@@ -8,6 +8,8 @@ Signed-off-by: LiJunmeng <junmeng.li_1@nxp.com>
  arch/arm64/boot/dts/freescale/Makefile | 1 +
  1 file changed, 1 insertion(+)
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/arch/arm64/boot/dts/freescale/Makefile b/arch/arm64/boot/dts/freescale/Makefile
 index 8db629e8b13b..9c4ec5cbae59 100644
 --- a/arch/arm64/boot/dts/freescale/Makefile
