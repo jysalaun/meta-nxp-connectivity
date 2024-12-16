@@ -27,6 +27,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/agent/CMakeLists.txt b/src/agent/CMakeLists.txt
 index 90178d7c11c..0f93daa1674 100644
 --- a/src/agent/CMakeLists.txt

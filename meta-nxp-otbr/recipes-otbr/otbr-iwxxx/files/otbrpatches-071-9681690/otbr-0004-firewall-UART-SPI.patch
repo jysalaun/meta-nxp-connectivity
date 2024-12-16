@@ -27,6 +27,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/script/README_firewall.txt b/script/README_firewall.txt
 new file mode 100644
 index 0000000000..12a82a5932

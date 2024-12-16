@@ -35,6 +35,8 @@
 * Impact if not applied : "systemctl start otbr" always fails.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/agent/CMakeLists.txt b/src/agent/CMakeLists.txt
 index 0bec807ccf..56e4460946 100644
 --- a/src/agent/CMakeLists.txt
