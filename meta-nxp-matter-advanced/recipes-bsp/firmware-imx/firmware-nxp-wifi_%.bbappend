@@ -21,16 +21,16 @@ SRC_URI += "file://0001-Add-IW610-15.4-firmware-calibration-file-and-use-it-.pat
 
 do_install:prepend() {
     rm -f ${S}/nxp/FwImage_IW612_SD/*.se
-    cp ${WORKDIR}/IW612-Q4-24-R3-p21.12/sduart_nw61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
-    cp ${WORKDIR}/IW612-Q4-24-R3-p21.12/sd_w61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
-    cp ${WORKDIR}/IW612-Q4-24-R3-p21.12/uartspi_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${UNPACKDIR}/IW612-Q4-24-R3-p21.12/sduart_nw61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${UNPACKDIR}/IW612-Q4-24-R3-p21.12/sd_w61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
+    cp ${UNPACKDIR}/IW612-Q4-24-R3-p21.12/uartspi_n61x_v1.bin.se ${S}/nxp/FwImage_IW612_SD
 
     rm -f ${S}/nxp/FwImage_IW610_SD/*.se
-    cp ${WORKDIR}/IW610-Q4-24-R3-p43/sd_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
-    cp ${WORKDIR}/IW610-Q4-24-R3-p43/sduart_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
-    cp ${WORKDIR}/IW610-Q4-24-R3-p43/uart_iw610_bt.bin.se ${S}/nxp/FwImage_IW610_SD
-    cp ${WORKDIR}/IW610-Q4-24-R3-p43/uartspi_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
-    cp ${WORKDIR}/IW610-Q4-24-R3-p43/sduartspi_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
+    cp ${UNPACKDIR}/IW610-Q4-24-R3-p43/sd_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
+    cp ${UNPACKDIR}/IW610-Q4-24-R3-p43/sduart_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
+    cp ${UNPACKDIR}/IW610-Q4-24-R3-p43/uart_iw610_bt.bin.se ${S}/nxp/FwImage_IW610_SD
+    cp ${UNPACKDIR}/IW610-Q4-24-R3-p43/uartspi_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
+    cp ${UNPACKDIR}/IW610-Q4-24-R3-p43/sduartspi_iw610.bin.se ${S}/nxp/FwImage_IW610_SD
 }
 
 do_install() {

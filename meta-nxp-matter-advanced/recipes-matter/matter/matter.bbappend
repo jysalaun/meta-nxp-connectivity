@@ -149,5 +149,5 @@ do_install:append() {
     fi
 
     # Install ota.sh
-    install -m 755 ${WORKDIR}/ota.sh ${D}${bindir}
+    install -m 755 ${UNPACKDIR}/ota.sh ${D}${bindir}
 }

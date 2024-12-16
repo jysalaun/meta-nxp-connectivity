@@ -7,7 +7,7 @@ RDEPENDS:${PN} += "bash"
 do_install:append() {
     # install network configuration
     install -d ${D}${sysconfdir}/systemd/network/
-    install -m 0644 ${WORKDIR}/80-wifi-station.network  ${D}${sysconfdir}/systemd/network/
+    install -m 0644 ${UNPACKDIR}/80-wifi-station.network  ${D}${sysconfdir}/systemd/network/
 }
 
 FILES:${PN} += "${sysconfdir}/systemd/network/*.network"

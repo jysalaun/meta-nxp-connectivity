@@ -11,6 +11,8 @@ Signed-off-by: junmengli <junmeng.li_1@nxp.com>
  2 files changed, 33 insertions(+), 2 deletions(-)
  create mode 100644 nxp/FwImage_IW610_SD/sdiw610_WlanCalData_ext.conf
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/nxp/FwImage_IW610_SD/sdiw610_WlanCalData_ext.conf b/nxp/FwImage_IW610_SD/sdiw610_WlanCalData_ext.conf
 new file mode 100644
 index 0000000..74093e0

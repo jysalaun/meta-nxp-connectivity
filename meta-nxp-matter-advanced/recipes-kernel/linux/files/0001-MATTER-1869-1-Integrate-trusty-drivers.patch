@@ -85,6 +85,8 @@ Signed-off-by: Ji Luo <ji.luo@nxp.com>
  create mode 100644 include/uapi/linux/trusty/OWNERS
  create mode 100644 include/uapi/linux/trusty/ipc.h
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/Documentation/devicetree/bindings/trusty/OWNERS b/Documentation/devicetree/bindings/trusty/OWNERS
 new file mode 100644
 index 000000000000..0f6b8454aafc
