@@ -8,6 +8,8 @@ Signed-off-by: Haoran Wang <elven.wang@nxp.com>
  platform/NCP_HOST/cmake/NxpZbNcpHostConfig.cmake | 3 +--
  1 file changed, 1 insertion(+), 2 deletions(-)
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/platform/NCP_HOST/cmake/NxpZbNcpHostConfig.cmake b/platform/NCP_HOST/cmake/NxpZbNcpHostConfig.cmake
 index 5bbac18..548b476 100644
 --- a/platform/NCP_HOST/cmake/NxpZbNcpHostConfig.cmake

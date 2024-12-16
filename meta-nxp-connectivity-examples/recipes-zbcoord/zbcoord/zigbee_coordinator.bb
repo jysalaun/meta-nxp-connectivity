@@ -34,7 +34,7 @@ do_configure() {
         export https_proxy
     fi
     cd ${S}/examples/zigbee_coordinator/build_linux
-    cmake ./ -DMACHINE_TYPE=imx8 -DCONFIG_MBEDTLS_SOURCE=GIT
+    cmake ./ -DMACHINE_TYPE=imx8 -DCONFIG_MBEDTLS_SOURCE=GIT -DENABLE_TESTING=OFF -DENABLE_PROGRAMS=OFF
 }
 
 do_compile() {
