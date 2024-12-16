@@ -27,6 +27,8 @@
 *  POSSIBILITY OF SUCH DAMAGE.
 */
 
+Upstream-Status: Inappropriate  [platform specific changes]
+
 diff --git a/src/agent/otbr-agent.service.in b/src/agent/otbr-agent.service.in
 index 8314121347..a7533ccdc3 100644
 --- a/src/agent/otbr-agent.service.in
