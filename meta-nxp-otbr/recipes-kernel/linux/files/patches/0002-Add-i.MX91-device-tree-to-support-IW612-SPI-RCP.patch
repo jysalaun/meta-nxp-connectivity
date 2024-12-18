@@ -18,7 +18,7 @@ index 8db629e8b13b..9c4ec5cbae59 100644
  			  imx91-11x11-evk-mt9m114.dtb \
  			  imx91-11x11-evk-ld.dtb \
  			  imx91-11x11-evk-i2c-spi-slave.dtb \
-+			  imx93-11x11-evk-iw612-otbr.dtb \
++			  imx91-11x11-evk-iw612-otbr.dtb \
  			  imx91-11x11-evk-i3c.dtb
  
  imx93-11x11-evk-pmic-pf0900-dtbs := imx93-11x11-evk.dtb imx93-11x11-evk-pmic-pf0900.dtbo
