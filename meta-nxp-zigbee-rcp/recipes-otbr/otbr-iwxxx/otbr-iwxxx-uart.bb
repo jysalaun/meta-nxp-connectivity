@@ -21,6 +21,8 @@ do_configure:prepend () {
 inherit cmake
 include iw612_otbr_src_rev_opts_patches.inc
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
+SRC_URI += "file://0001-Specify-MBEDTLS_COMPILER_IS_GCC-inlibrary-common.h.patch;patchdir=third_party/openthread/repo/"
 
 EXTRA_OECMAKE += " -DOT_POSIX_RCP_HDLC_BUS=ON -DOTBR_WEB=ON "
 BIN_NAME_PATTERN="-iwxxx-uart"
+INSANE_SKIP:${PN} += "buildpaths"
