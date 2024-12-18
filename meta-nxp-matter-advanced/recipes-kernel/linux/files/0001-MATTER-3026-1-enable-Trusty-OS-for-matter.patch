@@ -1,11 +1,78 @@
-From 6bfb51e7f08b49c6883d57801adfefd0ec1432f8 Mon Sep 17 00:00:00 2001
+From 1ab2268af9f2009a8be4bd414330d45a7b4cd859 Mon Sep 17 00:00:00 2001
 From: Ji Luo <ji.luo@nxp.com>
-Date: Wed, 27 Dec 2023 17:33:28 +0900
-Subject: [PATCH 1/2] MATTER-1869-1 Integrate trusty drivers
+Date: Thu, 19 Dec 2024 14:55:02 +0800
+Subject: [PATCH 1/2] MATTER-3026-1 enable Trusty OS for matter
 
-Integrate trusty drivers for matter kernel v6.6.
+Porting trusty kernel drivers into kernel 6.12. This commit squashes
+below commits:
 
-Change-Id: I39233b977b00d6d76fc02964903f906919089afd
+ MA-20082-1 ANDROID: trusty-log: enlarge buffer size for old trusty api version
+ MA-17372-1 trusty: remove trusty-log buffer when shutdown
+ treewide: add missing vmalloc.h include (v6.10 preparation)
+ trusty: kbuild: this depends on ARCH_HAS_DMA_OPS (v6.12 compat)
+ trusty: virtio: implement (empty) dma_map_ops::unmap_page (v6.12 prep)
+ treewide: comply with platform_driver::remove() returning void (v6.11 compatibility)
+ trusty: virtio: comply with find_vqs() new parameters (v6.11 compatibility)
+ treewide: remove second parameter of__assign_str() (v6.10 compatibility)
+ Trusty driver compat 6.7 shrinker interface
+ Trusty driver compat 6.0 register_shrinker()
+ trusty: set kthread affinity again when cpu hotplugs
+ MA-23225 trusty: fix build break
+ ANDROID: Eliminate vqueue map/unmap for each msg
+ ANDROID: trusty: Make Trusty driver page size agnostic
+ ANDROID: trusty-ipc: correct data_source flag of struct iov_iter in filp_send_ioctl()
+ ANDROID: trusty: fix use-after-free
+ ANDROID: trusty: Make trusty-irq part of trusty-core module.
+ ANDROID: Delay sharing sched memory with Trusty
+ ANDROID: trusty: Call kthread_set_per_cpu
+ ANDROID: trusty-log: fix potential use-after-free
+ ANDROID: trusty: park threads when cpu is offline
+ ANDROID: trusty: Print error message if trusty_nop_thread runs on wrong cpu
+ ANDROID: improve trusty kthread priority
+ ANDROID: escalate kthread nice for Trusty
+ ANDROID: Use kthread for trusty work instead of wq
+ ANDROID: trusty: Create API for sharing trusty info
+ ANDROID: trusty: Add trace points
+ ANDROID: Enable repo hooks
+ ANDROID: trusty: Use high priority check WQ and regular nop WQ
+ ANDROID: trusty-log: fix poll check for data availability.
+ ANDROID: trusty: Add trusty OWNERS files uapi and docs
+ ANDROID: trusty: Add OWNERS files referring to the top level trusty OWNERS
+ ANDROID: trusty: add a toggle for running trusty work in higher priority
+ ANDROID: trusty-log: Optionally copy Trusty log to kernel log
+ Revert "ANDROID: trusty-log: Don't copy Trusty logs to linux kernel log"
+ ANDROID: trusty-log: make rate limit configurable
+ ANDROID: trusty: Enforce only TRUSTY_SEND_SECURE can send secure memory
+ ANDROID: trusty-ipc: Allow registering multiple handles
+ ANDROID: trusty: Support setting trusty_shared_mem_id_t
+ ANDROID: trusty-log: Don't copy Trusty logs to linux kernel log
+ ANDROID: trusty-log: rework buffer allocation
+ ANDROID: trusty-ipc: Fix lock protection of shared_handles
+ ANDROID: trusty-log: support poll()
+ ANDROID: trusty-irq: enqueue work in trusty_irq_cpu_up
+ ANDROID: trusty: Add config TRUSTY_CRASH_IS_PANIC
+ ANDROID: trusty-ipc: Fix crash when running out of txbuffers
+ ANDROID: trusty: Allow TRUSTY_LEND of buffers
+ ANDROID: trusty-virtio: remove unnecessary include of dma-mapping.h
+ ANDROID: trusty-log: Complement logging sink with unthrottled virtual file
+ ANDROID: trusty-log: Refactor logging state to support concurrent sinks
+ ANDROID: trusty-log: Sanitize u32 overflow of the log ring buffer write index
+ ANDROID: trusty-log: On trusty panic, unthrottle sink to the kernel log
+ ANDROID: trusty-log: Update trusty log buffer size to hold a complete Trusty crash logs
+ ANDROID: trusty_qemu_defconfig: Enable dma-buf and ion system heaps
+ ANDROID: trusty: Support setting FF-A Tag
+ ANDROID: Add trusty_qemu_defconfig
+ ANDROID: trusty-ipc: Switch from memfd to dma_buf
+ ANDROID: trusty-irq: document new way of specifying IPIs
+ ANDROID: trusty-irq: specify IPIs in new way
+ ANDROID: trusty: Add trusty-test driver
+ ANDROID: trusty: Add trusty-ipc driver
+ ANDROID: trusty: Add trusty-virtio driver
+ ANDROID: trusty: Add trusty-log driver
+ ANDROID: trusty: Add trusty-irq driver
+ ANDROID: trusty: Add trusty-core driver
+
+Change-Id: I9c23e7d5b3759f9d08ca7f929631cef54071b8a6
 Signed-off-by: Ji Luo <ji.luo@nxp.com>
 ---
  .../devicetree/bindings/trusty/OWNERS         |    2 +
@@ -16,19 +83,19 @@ Signed-off-by: Ji Luo <ji.luo@nxp.com>
  .../configs/trusty_qemu_defconfig.fragment    |   26 +
  drivers/Kconfig                               |    2 +
  drivers/Makefile                              |    1 +
- drivers/trusty/Kconfig                        |  117 +
+ drivers/trusty/Kconfig                        |  118 +
  drivers/trusty/Makefile                       |   14 +
  drivers/trusty/OWNERS                         |    2 +
  drivers/trusty/trusty-ipc-trace.h             |  245 ++
- drivers/trusty/trusty-ipc.c                   | 2386 +++++++++++++++++
+ drivers/trusty/trusty-ipc.c                   | 2782 +++++++++++++++++
  drivers/trusty/trusty-irq-trace.h             |   32 +
- drivers/trusty/trusty-irq.c                   |  673 +++++
+ drivers/trusty/trusty-irq.c                   |  642 ++++
  drivers/trusty/trusty-irq.h                   |   17 +
- drivers/trusty/trusty-log.c                   |  999 +++++++
- drivers/trusty/trusty-log.h                   |   33 +
+ drivers/trusty/trusty-log.c                   | 1020 ++++++
+ drivers/trusty/trusty-log.h                   |   28 +
  drivers/trusty/trusty-mem.c                   |  139 +
  drivers/trusty/trusty-sched-share-api.h       |   27 +
- drivers/trusty/trusty-sched-share.c           |  286 ++
+ drivers/trusty/trusty-sched-share.c           |  288 ++
  drivers/trusty/trusty-sched-share.h           |   58 +
  drivers/trusty/trusty-smc-arm.S               |   41 +
  drivers/trusty/trusty-smc-arm64.S             |   35 +
@@ -36,18 +103,18 @@ Signed-off-by: Ji Luo <ji.luo@nxp.com>
  drivers/trusty/trusty-test.c                  |  440 +++
  drivers/trusty/trusty-test.h                  |   13 +
  drivers/trusty/trusty-trace.h                 |  268 ++
- drivers/trusty/trusty-virtio.c                |  843 ++++++
- drivers/trusty/trusty.c                       | 1281 +++++++++
+ drivers/trusty/trusty-virtio.c                |  852 +++++
+ drivers/trusty/trusty.c                       | 1266 ++++++++
  include/linux/trusty/OWNERS                   |    2 +
- include/linux/trusty/arm_ffa.h                |  597 +++++
+ include/linux/trusty/arm_ffa.h                |  597 ++++
  include/linux/trusty/sm_err.h                 |   28 +
- include/linux/trusty/smcall.h                 |  154 ++
+ include/linux/trusty/smcall.h                 |  154 +
  include/linux/trusty/trusty.h                 |  138 +
  include/linux/trusty/trusty_ipc.h             |   90 +
  include/uapi/linux/trusty/OWNERS              |    2 +
  include/uapi/linux/trusty/ipc.h               |   65 +
  include/uapi/linux/virtio_ids.h               |    2 +-
- 39 files changed, 9454 insertions(+), 1 deletion(-)
+ 39 files changed, 9832 insertions(+), 1 deletion(-)
  create mode 100644 Documentation/devicetree/bindings/trusty/OWNERS
  create mode 100644 Documentation/devicetree/bindings/trusty/trusty-irq.txt
  create mode 100644 Documentation/devicetree/bindings/trusty/trusty-smc.txt
@@ -89,7 +156,7 @@ Upstream-Status: Inappropriate  [platform specific changes]
 
 diff --git a/Documentation/devicetree/bindings/trusty/OWNERS b/Documentation/devicetree/bindings/trusty/OWNERS
 new file mode 100644
-index 000000000000..0f6b8454aafc
+index 0000000000000..0f6b8454aafcf
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/trusty/OWNERS
 @@ -0,0 +1,2 @@
@@ -97,7 +164,7 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/Documentation/devicetree/bindings/trusty/trusty-irq.txt b/Documentation/devicetree/bindings/trusty/trusty-irq.txt
 new file mode 100644
-index 000000000000..cbb545ad452b
+index 0000000000000..cbb545ad452bf
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/trusty/trusty-irq.txt
 @@ -0,0 +1,67 @@
@@ -170,7 +237,7 @@ index 000000000000..cbb545ad452b
 +Must be a child of the node that provides the trusty std/fast call interface.
 diff --git a/Documentation/devicetree/bindings/trusty/trusty-smc.txt b/Documentation/devicetree/bindings/trusty/trusty-smc.txt
 new file mode 100644
-index 000000000000..1b39ad317c67
+index 0000000000000..1b39ad317c678
 --- /dev/null
 +++ b/Documentation/devicetree/bindings/trusty/trusty-smc.txt
 @@ -0,0 +1,6 @@
@@ -182,7 +249,7 @@ index 000000000000..1b39ad317c67
 +- compatible: "android,trusty-smc-v1"
 diff --git a/PREUPLOAD.cfg b/PREUPLOAD.cfg
 new file mode 100644
-index 000000000000..ad93a062ad5a
+index 0000000000000..ad93a062ad5ac
 --- /dev/null
 +++ b/PREUPLOAD.cfg
 @@ -0,0 +1,7 @@
@@ -195,7 +262,7 @@ index 000000000000..ad93a062ad5a
 +checkpatch = --ignore=FILE_PATH_CHANGES,GERRIT_CHANGE_ID
 diff --git a/arch/arm/configs/trusty_qemu_defconfig b/arch/arm/configs/trusty_qemu_defconfig
 new file mode 100644
-index 000000000000..46ad9504c23d
+index 0000000000000..46ad9504c23d1
 --- /dev/null
 +++ b/arch/arm/configs/trusty_qemu_defconfig
 @@ -0,0 +1,291 @@
@@ -492,7 +559,7 @@ index 000000000000..46ad9504c23d
 +CONFIG_ATOMIC64_SELFTEST=y
 diff --git a/arch/arm64/configs/trusty_qemu_defconfig.fragment b/arch/arm64/configs/trusty_qemu_defconfig.fragment
 new file mode 100644
-index 000000000000..166eef1797fd
+index 0000000000000..166eef1797fd3
 --- /dev/null
 +++ b/arch/arm64/configs/trusty_qemu_defconfig.fragment
 @@ -0,0 +1,26 @@
@@ -523,7 +590,7 @@ index 000000000000..166eef1797fd
 +# CONFIG_LTO_CLANG is not set
 +# CONFIG_LTO_CLANG_FULL is not set
 diff --git a/drivers/Kconfig b/drivers/Kconfig
-index 5946aff3f5d0..370bbdcdf4a8 100644
+index f73639c56e5b7..b91b2ea505d8c 100644
 --- a/drivers/Kconfig
 +++ b/drivers/Kconfig
 @@ -87,6 +87,8 @@ source "drivers/hwmon/Kconfig"
@@ -536,10 +603,10 @@ index 5946aff3f5d0..370bbdcdf4a8 100644
  
  source "drivers/ssb/Kconfig"
 diff --git a/drivers/Makefile b/drivers/Makefile
-index c1a43e0bf997..86eed1d0ef65 100644
+index c68fda8dd0e22..a56d8b753acf9 100644
 --- a/drivers/Makefile
 +++ b/drivers/Makefile
-@@ -123,6 +123,7 @@ obj-$(CONFIG_W1)		+= w1/
+@@ -120,6 +120,7 @@ obj-$(CONFIG_W1)		+= w1/
  obj-y				+= power/
  obj-$(CONFIG_HWMON)		+= hwmon/
  obj-$(CONFIG_THERMAL)		+= thermal/
@@ -549,10 +616,10 @@ index c1a43e0bf997..86eed1d0ef65 100644
  obj-$(CONFIG_BT)		+= bluetooth/
 diff --git a/drivers/trusty/Kconfig b/drivers/trusty/Kconfig
 new file mode 100644
-index 000000000000..92b164a53226
+index 0000000000000..4890cf6045477
 --- /dev/null
 +++ b/drivers/trusty/Kconfig
-@@ -0,0 +1,117 @@
+@@ -0,0 +1,118 @@
 +# SPDX-License-Identifier: GPL-2.0-only
 +#
 +# Trusty driver
@@ -614,6 +681,7 @@ index 000000000000..92b164a53226
 +config TRUSTY_VIRTIO
 +	tristate "Trusty virtio support"
 +	select VIRTIO
++	depends on ARCH_HAS_DMA_OPS
 +	default y
 +	help
 +	  Enable the Trusty virtio driver, which is responsible for management
@@ -672,7 +740,7 @@ index 000000000000..92b164a53226
 +endmenu
 diff --git a/drivers/trusty/Makefile b/drivers/trusty/Makefile
 new file mode 100644
-index 000000000000..eb0765ed46b0
+index 0000000000000..eb0765ed46b0e
 --- /dev/null
 +++ b/drivers/trusty/Makefile
 @@ -0,0 +1,14 @@
@@ -692,7 +760,7 @@ index 000000000000..eb0765ed46b0
 +obj-$(CONFIG_TRUSTY_VIRTIO_IPC)	+= trusty-ipc.o
 diff --git a/drivers/trusty/OWNERS b/drivers/trusty/OWNERS
 new file mode 100644
-index 000000000000..0f6b8454aafc
+index 0000000000000..0f6b8454aafcf
 --- /dev/null
 +++ b/drivers/trusty/OWNERS
 @@ -0,0 +1,2 @@
@@ -700,7 +768,7 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/drivers/trusty/trusty-ipc-trace.h b/drivers/trusty/trusty-ipc-trace.h
 new file mode 100644
-index 000000000000..aded126172e1
+index 0000000000000..36df0924af8e3
 --- /dev/null
 +++ b/drivers/trusty/trusty-ipc-trace.h
 @@ -0,0 +1,245 @@
@@ -767,7 +835,7 @@ index 000000000000..aded126172e1
 +	),
 +	TP_fast_assign(
 +		__entry->chan = chan ? chan->local : ~0U;
-+		__assign_str(port, port);
++		__assign_str(port);
 +		__entry->state = chan ? chan->state : 0;
 +	),
 +	TP_printk("chan=%u port=%s state=%s", __entry->chan, __get_str(port),
@@ -951,10 +1019,10 @@ index 000000000000..aded126172e1
 +#include <trace/define_trace.h>
 diff --git a/drivers/trusty/trusty-ipc.c b/drivers/trusty/trusty-ipc.c
 new file mode 100644
-index 000000000000..2e24ae99fd8d
+index 0000000000000..9995e2d894a14
 --- /dev/null
 +++ b/drivers/trusty/trusty-ipc.c
-@@ -0,0 +1,2386 @@
+@@ -0,0 +1,2782 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2020 Google, Inc.
@@ -975,6 +1043,8 @@ index 000000000000..2e24ae99fd8d
 +#include <linux/compat.h>
 +#include <linux/uio.h>
 +#include <linux/file.h>
++#include <linux/version.h>
++#include <linux/shrinker.h>
 +
 +#include <linux/virtio.h>
 +#include <linux/virtio_ids.h>
@@ -984,7 +1054,6 @@ index 000000000000..2e24ae99fd8d
 +#include <linux/trusty/trusty_ipc.h>
 +
 +#include <uapi/linux/trusty/ipc.h>
-+#include <asm/pgtable-prot.h>
 +
 +#include "trusty-ipc-trace.h"
 +
@@ -1006,6 +1075,12 @@ index 000000000000..2e24ae99fd8d
 +
 +#ifdef CONFIG_COMPAT
 +#define TIPC_IOC32_CONNECT	_IOW(TIPC_IOC_MAGIC, 0x80, compat_uptr_t)
++#endif
++
++#if (KERNEL_VERSION(6, 0, 0) <= LINUX_VERSION_CODE)
++#define TRUSTY_IPC_REGISTER_SHRINKER_ARG , "trusty-ipc-shrinker"
++#else
++#define TRUSTY_IPC_REGISTER_SHRINKER_ARG
 +#endif
 +
 +struct tipc_virtio_dev;
@@ -1032,6 +1107,31 @@ index 000000000000..2e24ae99fd8d
 +	u8 data[];
 +} __packed;
 +
++/*
++ * struct tipc_ctrl_msg_types - Types of control messages
++ * @TIPC_CTRL_MSGTYPE_GO_ONLINE:
++ * @TIPC_CTRL_MSGTYPE_GO_OFFLINE:
++ * @TIPC_CTRL_MSGTYPE_CONN_REQ:
++ * @TIPC_CTRL_MSGTYPE_CONN_RSP:
++ * @TIPC_CTRL_MSGTYPE_DISC_REQ:
++ * @TIPC_CTRL_MSGTYPE_RELEASE:
++ * @TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_REQ: Turn on reuse feature in Trusty to
++ *                                      avoid map/unmap on each message. This
++ *                                      driver maintains lists of what has
++ *                                      already been allocated and which are
++ *                                      free (rx/tx remain separate due to
++ *                                      differing share permissions).
++ * @TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_RSP: Confirmation that reuse feature
++ *                                      has been enabled. Backward compatibility:
++ *                                      If Trusty does not support, this will
++ *                                      never be received (and Trusty log will
++ *                                      indicate that an unsupported control
++ *                                      message type was received).
++ * @TIPC_CTRL_MSGTYPE_UNMAP_REQ: Request unmap of a buffer with the
++ *                               provided id so that it can be reclaimed
++ * @TIPC_CTRL_MSGTYPE_UNMAP_RSP: Result of unmap request; success results in
++ *                               an FF-A reclaim
++ */
 +enum tipc_ctrl_msg_types {
 +	TIPC_CTRL_MSGTYPE_GO_ONLINE = 1,
 +	TIPC_CTRL_MSGTYPE_GO_OFFLINE,
@@ -1039,6 +1139,10 @@ index 000000000000..2e24ae99fd8d
 +	TIPC_CTRL_MSGTYPE_CONN_RSP,
 +	TIPC_CTRL_MSGTYPE_DISC_REQ,
 +	TIPC_CTRL_MSGTYPE_RELEASE,
++	TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_REQ,
++	TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_RSP,
++	TIPC_CTRL_MSGTYPE_UNMAP_REQ,
++	TIPC_CTRL_MSGTYPE_UNMAP_RSP,
 +};
 +
 +struct tipc_ctrl_msg {
@@ -1067,6 +1171,15 @@ index 000000000000..2e24ae99fd8d
 +	trusty_shared_mem_id_t id;
 +} __packed;
 +
++struct tipc_unmap_req_body {
++	trusty_shared_mem_id_t id;
++} __packed;
++
++struct tipc_unmap_rsp_body {
++	int32_t result;
++	trusty_shared_mem_id_t id;
++} __packed;
++
 +struct tipc_cdev_node {
 +	struct cdev cdev;
 +	struct device *dev;
@@ -1090,6 +1203,18 @@ index 000000000000..2e24ae99fd8d
 +	size_t msg_buf_max_sz;
 +	unsigned int free_msg_buf_cnt;
 +	struct list_head free_buf_list;
++	struct mutex free_rx_lock; /* protection for free_rx_queue/free_rx_cnt */
++	unsigned int free_rx_cnt;
++	struct list_head free_rx_queue;
++	struct mutex reclaim_list_lock;
++	struct list_head reclaim_in_progress;
++	wait_queue_head_t reclaim_done;
++	bool reuse_msgbuf;
++#if (KERNEL_VERSION(6, 7, 0) <= LINUX_VERSION_CODE)
++	struct shrinker *mb_shrinker;
++#else
++	struct shrinker mb_shrinker;
++#endif
 +	wait_queue_head_t sendq;
 +	struct idr addr_idr;
 +	enum tipc_device_state state;
@@ -1142,6 +1267,167 @@ index 000000000000..2e24ae99fd8d
 +
 +static DEFINE_IDR(tipc_devices);
 +static DEFINE_MUTEX(tipc_devices_lock);
++
++/* forward declarations */
++static int tipc_chan_queue_ctrlmsg(struct tipc_chan *chan, u32 msg_type,
++		u32 body_len, u8 *body);
++static void vds_free_msg_buf(struct tipc_virtio_dev *vds,
++			     struct tipc_msg_buf *mb);
++
++/**
++ * vds_get_list_to_unmap() - Gather free entries to tell Trusty to unmap
++ *
++ * @vds: pointer to tipc's virtio state
++ * @list: list of buffers to take from (input)
++ * @list_to_unmap: list to populate with buffers to unmap (output)
++ *                 a request hasn't yet been sent to Trusty
++ * @request_cnt: number of buffers to unmap (<=0 to unmap entire list)
++ *
++ * Entries have to move from used list to free list to temporary list
++ * to reclaim_in_progress list. The temporary list is necessary to
++ * prevent holding the lock to the list while IPC is performed with
++ * Trusty. This function moves a requested count from free list to
++ * temporary list with safety checks.
++ *
++ * Context: while holding lock to list
++ * Return: number of buffers added to list_to_unmap
++ */
++static int vds_get_list_to_unmap(struct tipc_virtio_dev *vds,
++		struct list_head *list, struct list_head *list_to_unmap,
++		const int request_cnt)
++{
++	int actual_cnt = 0;
++	struct list_head *tmp_list;
++
++	/* find last entry that needs to move */
++	list_for_each(tmp_list, list) {
++		actual_cnt++;
++		if (request_cnt > 0 && actual_cnt >= request_cnt)
++			break;
++	}
++
++	/* move it all at once */
++	list_cut_position(list_to_unmap, list, tmp_list);
++
++	return actual_cnt;
++}
++
++/**
++ * vds_start_unmap() - Initiate unmap by sending request to Trusty
++ *
++ * @vds: pointer to tipc's virtio state
++ * @list_to_unmap: list to tell Trusty to unmap now. Empty upon return
++ *
++ * Unmapping requires IPC to Trusty, so without any locks held, send
++ * requests for each mailbox entry in the list.
++ *
++ * Once Trusty responds to unmap request, the buffer is freed in
++ * _handle_unmap_rsp()
++ *
++ * Context: while not holding locks that would interfer with sending
++ *          or receiving messages.
++ * Return: actual count of successful unmap requests sent to Trusty
++ */
++static int vds_start_unmap(struct tipc_virtio_dev *vds,
++		struct list_head *list_to_unmap)
++{
++	int actual_cnt = 0;
++	struct tipc_msg_buf *mb;
++	struct list_head *tmp_list, *next_pos;
++	struct tipc_unmap_req_body body;
++
++	list_for_each_safe(tmp_list, next_pos, list_to_unmap) {
++		mb = list_entry(tmp_list, struct tipc_msg_buf, node);
++
++		if (vds->reuse_msgbuf) {
++			dev_dbg(&vds->vdev->dev,
++					"%s: reclaim in progress id= %llu sg= %p dev_addr= %p\n",
++					__func__, mb->buf_id, &mb->sg,
++					(void *)sg_dma_address(&mb->sg));
++
++			/* move from local list to reclaim in progress list */
++			mutex_lock(&vds->reclaim_list_lock);
++			list_move_tail(&mb->node, &vds->reclaim_in_progress);
++			mutex_unlock(&vds->reclaim_list_lock);
++
++			/* trigger unmap on Trusty; reclaim upon successful response */
++			body.id = mb->buf_id;
++			tipc_chan_queue_ctrlmsg(NULL, TIPC_CTRL_MSGTYPE_UNMAP_REQ,
++					sizeof(body), (u8 *)&body);
++		} else {
++			/* trusty doesn't support reuse and has already unmapped */
++			vds_free_msg_buf(vds, mb);
++		}
++
++		actual_cnt++;
++	}
++
++	return actual_cnt;
++}
++
++/*
++ * vds_reduce_buf_cnt() - Apply reduce request to rx and tx buffers
++ *
++ * @vds: pointer to tipc's virtio state
++ * @reduce_cnt: requested count of buffers to unmap/free
++ *
++ * There are virtio buffers allocated for rx and tx, so request to
++ * shrink or clean up must be across both. This just initiates
++ * the unmap via a request to Trusty, which must be followed up
++ * with a reclaim/free.
++ *
++ * Return: actual count for which an unmap request was sent
++ */
++static unsigned long vds_reduce_buf_cnt(struct tipc_virtio_dev *vds,
++		unsigned long reduce_cnt)
++{
++	unsigned long shrink_cnt = 0;
++	struct list_head *list;
++	struct mutex *lock;
++	unsigned int *list_cnt;
++	unsigned long reduce_ratio_1000x; /* floating point not available */
++	unsigned long list_reduce_cnt;
++	LIST_HEAD(list_to_unmap); /* temp because pending request to Trusty */
++	int ret;
++
++	/* spread request across free rx and tx lists ratiometrically */
++	/* NOTE: not perfect as counts can change before locks are held below */
++	reduce_ratio_1000x = (1000 * vds->free_msg_buf_cnt) / vds->free_rx_cnt;
++
++	/* loop through rx list, then through tx list */
++	lock = &vds->free_rx_lock;
++	list = &vds->free_rx_queue;
++	list_cnt = &vds->free_rx_cnt;
++	if (reduce_ratio_1000x > 1000)
++		list_reduce_cnt = (reduce_cnt * 1000) / reduce_ratio_1000x;
++	else
++		list_reduce_cnt = (reduce_cnt * reduce_ratio_1000x) / 1000;
++
++	while (list) {
++		/* move enough entries from free buf list into list to be umapped */
++		mutex_lock(lock);
++		ret = vds_get_list_to_unmap(vds, list, &list_to_unmap, list_reduce_cnt);
++		if (ret > 0)
++			*(list_cnt) -= ret;
++		mutex_unlock(lock);
++
++		/* select second list or exit loop */
++		if (list == &vds->free_rx_queue) {
++			lock = &vds->lock;
++			list = &vds->free_buf_list;
++			list_cnt = &vds->free_msg_buf_cnt;
++			list_reduce_cnt = reduce_cnt - list_reduce_cnt;
++		} else
++			list = NULL;
++	}
++
++	/* now initiate unmap->reclaim process on list entries */
++	ret = vds_start_unmap(vds, &list_to_unmap);
++	if (ret > 0)
++		shrink_cnt += ret;
++
++	return shrink_cnt;
++}
 +
 +static int _match_any(int id, void *p, void *data)
 +{
@@ -1225,16 +1511,15 @@ index 000000000000..2e24ae99fd8d
 +}
 +
 +static void vds_free_msg_buf_list(struct tipc_virtio_dev *vds,
-+				  struct list_head *list)
++				  struct mutex *lock, struct list_head *list)
 +{
-+	struct tipc_msg_buf *mb = NULL;
++	LIST_HEAD(list_to_unmap); /* temp because pending request to Trusty */
 +
-+	mb = list_first_entry_or_null(list, struct tipc_msg_buf, node);
-+	while (mb) {
-+		list_del(&mb->node);
-+		vds_free_msg_buf(vds, mb);
-+		mb = list_first_entry_or_null(list, struct tipc_msg_buf, node);
-+	}
++	mutex_lock(lock);
++	vds_get_list_to_unmap(vds, list, &list_to_unmap, 0);
++	mutex_unlock(lock);
++
++	vds_start_unmap(vds, &list_to_unmap);
 +}
 +
 +static inline void mb_reset(struct tipc_msg_buf *mb)
@@ -1690,13 +1975,37 @@ index 000000000000..2e24ae99fd8d
 +
 +struct tipc_msg_buf *tipc_chan_get_rxbuf(struct tipc_chan *chan)
 +{
++	struct tipc_msg_buf *mb = NULL;
++
++	/* if possible, use already allocated (and mapped) buffer */
++	mutex_lock(&chan->vds->free_rx_lock);
++	if (chan->vds->free_rx_cnt) {
++		mb = list_first_entry_or_null(&chan->vds->free_rx_queue,
++				struct tipc_msg_buf, node);
++	}
++
++	if (mb) {
++		list_del(&mb->node);
++		chan->vds->free_rx_cnt--;
++	}
++
++	mutex_unlock(&chan->vds->free_rx_lock);
++
++	if (mb)
++		return mb;
++
++	/* otherwise, allocate new because virtio needs a buffer */
 +	return vds_alloc_msg_buf(chan->vds, true);
 +}
 +EXPORT_SYMBOL(tipc_chan_get_rxbuf);
 +
 +void tipc_chan_put_rxbuf(struct tipc_chan *chan, struct tipc_msg_buf *mb)
 +{
-+	vds_free_msg_buf(chan->vds, mb);
++	/* put it on free list */
++	mutex_lock(&chan->vds->free_rx_lock);
++	list_add_tail(&mb->node, &chan->vds->free_rx_queue);
++	chan->vds->free_rx_cnt++;
++	mutex_unlock(&chan->vds->free_rx_lock);
 +}
 +EXPORT_SYMBOL(tipc_chan_put_rxbuf);
 +
@@ -1747,6 +2056,51 @@ index 000000000000..2e24ae99fd8d
 +}
 +EXPORT_SYMBOL(tipc_chan_queue_msg);
 +
++static int tipc_chan_queue_ctrlmsg(struct tipc_chan *chan, u32 msg_type,
++		u32 body_len, u8 *body)
++{
++	int err;
++	struct tipc_ctrl_msg *msg;
++	struct tipc_msg_buf *txbuf = NULL;
++	struct tipc_virtio_dev *vds;
++	int local;
++
++	if (chan) {
++		vds = chan->vds;
++		local = chan->local;
++	} else {
++		if (!default_vdev)
++			return -ENOTCONN;
++		vds = default_vdev->priv;
++		local = TIPC_CTRL_ADDR;
++	}
++
++	/* get tx buffer */
++	txbuf = vds_get_txbuf(vds, TXBUF_TIMEOUT);
++	if (IS_ERR(txbuf))
++		return PTR_ERR(txbuf);
++
++	/* reserve space for control message */
++	msg = mb_put_data(txbuf, sizeof(*msg) + body_len);
++
++	msg->type = msg_type;
++	msg->body_len = body_len;
++	memcpy(msg->body, body, body_len);
++
++	fill_msg_hdr(txbuf, local, TIPC_CTRL_ADDR);
++	err = vds_queue_txbuf(vds, txbuf);
++	if (err) {
++		/* release buffer */
++		vds_put_txbuf(vds, txbuf);
++
++		/* this should never happen */
++		dev_err(&vds->vdev->dev,
++			"%s: failed to queue ctrl msg (%d)\n",
++			__func__, err);
++	}
++
++	return err;
++}
 +
 +int tipc_chan_connect(struct tipc_chan *chan, const char *name)
 +{
@@ -1925,16 +2279,16 @@ index 000000000000..2e24ae99fd8d
 +	if (dn->state == TIPC_CONNECTED) {
 +		/* buffer received from trusty */
 +		trace_trusty_ipc_rx(dn->chan, rxbuf);
-+		/* get new buffer */
++		/* get new buffer for virtio to use for next msg */
 +		newbuf = tipc_chan_get_rxbuf(dn->chan);
 +		if (newbuf) {
-+			/* queue an old buffer and return a new one */
++			/* queue full buffer and return a new one for virtio to use */
 +			list_add_tail(&rxbuf->node, &dn->rx_msg_queue);
 +			wake_up_interruptible(&dn->readq);
 +		} else {
 +			/*
-+			 * return an old buffer effectively discarding
-+			 * incoming message
++			 * return a used buffer for virtio to use for next msg,
++			 * effectively discarding incoming message
 +			 */
 +			dev_err(&dn->chan->vds->vdev->dev,
 +				"%s: discard incoming message\n", __func__);
@@ -2111,92 +2465,6 @@ index 000000000000..2e24ae99fd8d
 +	return ret;
 +}
 +
-+#if defined(CONFIG_ARM64)
-+typedef uintptr_t vaddr_t;
-+static void arm64_write_ATS1ExW(uint64_t vaddr)
-+{
-+        uint64_t _current_el;
-+
-+        __asm__ volatile("mrs %0, CurrentEL" : "=r" (_current_el));
-+
-+        _current_el = (_current_el >> 2) & 0x3;
-+        switch (_current_el) {
-+        case 0x1:
-+            __asm__ volatile("at S1E1W, %0" :: "r" (vaddr));
-+            break;
-+        case 0x2:
-+            __asm__ volatile("at S1E2W, %0" :: "r" (vaddr));
-+            break;
-+        case 0x3:
-+        default:
-+            printk("Unsupported execution state: EL%llu\n", _current_el );
-+            break;
-+        }
-+
-+        __asm__ volatile("isb" ::: "memory");
-+}
-+static uint64_t arm64_read_par64(void)
-+{
-+        uint64_t _val;
-+        __asm__ volatile("mrs %0, par_el1" : "=r" (_val));
-+        return _val;
-+}
-+static uint64_t va2par(vaddr_t va)
-+{
-+        uint64_t par;
-+        local_irq_disable();
-+        arm64_write_ATS1ExW(va);
-+        par = arm64_read_par64();
-+        local_irq_enable();
-+        return par;
-+}
-+static void get_pgprot_from_memory(pgprot_t* prot, struct dma_buf *dmabuf) {
-+        size_t index;
-+        struct iosys_map map;
-+        int ret = dma_buf_vmap(dmabuf, &map);
-+        if (!ret) {
-+            uint64_t vaddr = (uint64_t)(map.vaddr);
-+            uint64_t par_el1 = va2par((vaddr_t)vaddr);
-+            uint8_t attr = (par_el1 & 0xff00000000000000) >> 56;
-+            u64 mair;
-+            asm ("mrs %0, mair_el1\n" : "=&r" (mair));
-+            for(index = 0; index < sizeof(mair); index++) {
-+                uint8_t attr_temp = (mair >> index*8) & 0x00000000000000ff;
-+                if (attr == attr_temp)
-+                    break;
-+            }
-+            switch (index) {
-+                case 0:
-+                    *prot = __pgprot(PROT_NORMAL);
-+                    break;
-+                case 1:
-+                    *prot = __pgprot(PROT_NORMAL_TAGGED);
-+                    break;
-+                case 2:
-+                    *prot = __pgprot(PROT_NORMAL_NC);
-+                    break;
-+                case 3:
-+                    *prot = __pgprot(PROT_DEVICE_nGnRnE);
-+                    break;
-+                case 4:
-+                    *prot = __pgprot(PROT_DEVICE_nGnRE);
-+                    break;
-+                case 5:
-+                    goto vunmap;
-+                case 6:
-+                    goto vunmap;
-+                case 7:
-+                    goto vunmap;
-+                default:
-+                    printk("attr is not in the mair register \n");
-+                    goto vunmap;
-+            }
-+vunmap:
-+        dma_buf_vunmap(dmabuf, &map);
-+        }
-+}
-+#endif
-+
 +static int dn_share_fd(struct tipc_dn_chan *dn, int fd,
 +		       enum transfer_kind transfer_kind,
 +		       struct tipc_shared_handle **out)
@@ -2291,9 +2559,6 @@ index 000000000000..2e24ae99fd8d
 +		goto cleanup_handle;
 +	}
 +
-+#if defined(CONFIG_ARM64)
-+        get_pgprot_from_memory(&prot, shared_handle->dma_buf);
-+#endif
 +	ret = trusty_transfer_memory(tipc_shared_handle_dev(shared_handle),
 +				     &mem_id, shared_handle->sgt->sgl,
 +				     shared_handle->sgt->orig_nents, prot, tag,
@@ -2683,8 +2948,10 @@ index 000000000000..2e24ae99fd8d
 +
 +	dn_shutdown(dn);
 +
-+	/* free all pending buffers */
-+	vds_free_msg_buf_list(dn->chan->vds, &dn->rx_msg_queue);
++	/* put all pending buffers back on free list for reuse by another channel */
++	mutex_lock(&dn->chan->vds->free_rx_lock);
++	list_splice_init(&dn->rx_msg_queue, &dn->chan->vds->free_rx_queue);
++	mutex_unlock(&dn->chan->vds->free_rx_lock);
 +
 +	/* shutdown channel  */
 +	tipc_chan_shutdown(dn->chan);
@@ -2834,6 +3101,9 @@ index 000000000000..2e24ae99fd8d
 +	create_cdev_node(vds, &vds->cdev_node);
 +
 +	dev_info(&vds->vdev->dev, "is online\n");
++
++	/* tell Trusty to reuse message buffers */
++	tipc_chan_queue_ctrlmsg(NULL, TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_REQ, 0, NULL);
 +}
 +
 +static void _go_offline(struct tipc_virtio_dev *vds)
@@ -2905,6 +3175,77 @@ index 000000000000..2e24ae99fd8d
 +		mutex_unlock(&chan->lock);
 +		kref_put(&chan->refcount, _free_chan);
 +	}
++}
++
++/**
++ * _handle_unmap_rsp() - Free virtio buffers after unmapped by Trusty
++ *
++ * @vds: pointer to tipc's virtio state
++ * @rsp: body of unmap response from Trusty
++ * @len: length of response body
++ *
++ * Once the buffer is no longer used by Trusty, it can be reclaimed
++ * in the FF-A layer and freed. This function is called when a
++ * response from Trusty to unmap request is received. The unmap
++ * request is sent in vds_start_unmap()
++ *
++ * Return: void
++ */
++static void _handle_unmap_rsp(struct tipc_virtio_dev *vds,
++			     struct tipc_unmap_rsp_body *rsp, size_t len)
++{
++	struct tipc_msg_buf *mb = NULL;
++	struct list_head *tmp_list, *next_pos;
++	bool reclaim_now_empty = false;
++
++	if (sizeof(*rsp) != len) {
++		dev_err(&vds->vdev->dev, "%s: Invalid response length %zd\n",
++			__func__, len);
++		return;
++	}
++
++	if (rsp->result == -2) {
++		/* Trusty ERR_NOT_FOUND .... remove it from our list */
++	} else if (rsp->result != 0) {
++		dev_err(&vds->vdev->dev, "%s: Trusty failed to unmap %d\n",
++			__func__, rsp->result);
++		return;
++	}
++
++	/* look up msg buf using id */
++	mutex_lock(&vds->reclaim_list_lock);
++	list_for_each_safe(tmp_list, next_pos, &vds->reclaim_in_progress) {
++		mb = list_entry(tmp_list, struct tipc_msg_buf, node);
++
++		if (mb->buf_id == rsp->id) {
++			if (!list_is_first(tmp_list, &vds->reclaim_in_progress)) {
++				dev_warn(&vds->vdev->dev,
++						"%s: unmap response out of order id= %llu, result= %d\n",
++						__func__, rsp->id, rsp->result);
++			}
++			list_del(&mb->node);
++			break;
++		}
++
++		mb = NULL; /* in case this is the last entry */
++	}
++	if (list_empty(&vds->reclaim_in_progress))
++		reclaim_now_empty = true;
++	mutex_unlock(&vds->reclaim_list_lock);
++
++	if (!mb) {
++		dev_err(&vds->vdev->dev, "%s: msg buf not found for id= %llu, result= %d\n",
++				__func__, rsp->id, rsp->result);
++		return;
++	}
++
++	dev_dbg(&vds->vdev->dev, "%s: calling reclaim on id= %llu sg= %p dev_addr= %p\n",
++			__func__, rsp->id, &mb->sg, (void *)sg_dma_address(&mb->sg));
++
++	vds_free_msg_buf(vds, mb);
++
++	if (reclaim_now_empty)
++		wake_up(&vds->reclaim_done);
 +}
 +
 +static void _handle_disc_req(struct tipc_virtio_dev *vds,
@@ -2993,6 +3334,16 @@ index 000000000000..2e24ae99fd8d
 +
 +	case TIPC_CTRL_MSGTYPE_GO_OFFLINE:
 +		_go_offline(vds);
++		break;
++
++	case TIPC_CTRL_MSGTYPE_REUSE_MSGBUF_RSP:
++		dev_info(&vds->vdev->dev, "TIPC reusing mapped message buffers\n");
++		vds->reuse_msgbuf = true;
++		break;
++
++	case TIPC_CTRL_MSGTYPE_UNMAP_RSP:
++		_handle_unmap_rsp(vds, (struct tipc_unmap_rsp_body *)msg->body,
++				 msg->body_len);
 +		break;
 +
 +	case TIPC_CTRL_MSGTYPE_CONN_RSP:
@@ -3166,14 +3517,75 @@ index 000000000000..2e24ae99fd8d
 +	}
 +}
 +
++#if (KERNEL_VERSION(6, 7, 0) <= LINUX_VERSION_CODE)
++static struct tipc_virtio_dev *tipc_shrinker_to_vds(struct shrinker *shrink)
++{
++	return shrink->private_data;
++}
++#else
++static struct tipc_virtio_dev *tipc_shrinker_to_vds(struct shrinker *shrink)
++{
++	return container_of(shrink, struct tipc_virtio_dev, mb_shrinker);
++}
++#endif
++
++static unsigned long
++tipc_shrink_count(struct shrinker *shrink, struct shrink_control *sc)
++{
++	unsigned long vds_actual_free_cnt;
++	struct tipc_virtio_dev *vds = tipc_shrinker_to_vds(shrink);
++	long ret;
++
++	vds_actual_free_cnt = vds->free_msg_buf_cnt + vds->free_rx_cnt;
++
++	/* reserve 2 in each list, then report half because shrinker
++	 * is very aggressive; which will cause thrashing during heavy TIPC
++	 * traffic due to shrinker free followed immediately by remapping
++	 */
++	if (vds_actual_free_cnt > 4)
++		ret = (vds_actual_free_cnt - 4) / 2;
++	else
++		ret = 0; /* below shrinkable limit; tell shrinker to stop */
++
++	dev_dbg(&vds->vdev->dev, "%s: reporting %ld free message buffers (actual= %lu)\n",
++			__func__, ret, vds_actual_free_cnt);
++
++	return (unsigned long)ret;
++}
++
++static unsigned long
++tipc_shrink_scan(struct shrinker *shrink, struct shrink_control *sc)
++{
++	struct tipc_virtio_dev *vds = tipc_shrinker_to_vds(shrink);
++	unsigned long ret;
++
++	ret = vds_reduce_buf_cnt(vds, sc->nr_to_scan);
++
++	dev_dbg(&vds->vdev->dev, "%s: freed %lu; asked to free %lu of %d\n", __func__,
++			ret, sc->nr_to_scan,
++			vds->free_msg_buf_cnt + vds->free_rx_cnt);
++
++	return ret;
++}
++
 +static int tipc_virtio_probe(struct virtio_device *vdev)
 +{
 +	int err, i;
 +	struct tipc_virtio_dev *vds;
 +	struct tipc_dev_config config;
 +	struct virtqueue *vqs[2];
-+	vq_callback_t *vq_cbs[] = {_rxvq_cb, _txvq_cb};
-+	static const char * const vq_names[] = { "rx", "tx" };
++	struct virtqueue_info vqs_info[] = {
++		{
++			.name = "rx",
++			.callback = _rxvq_cb,
++			.ctx = false,
++		},
++		{
++			.name = "tx",
++			.callback = _txvq_cb,
++			.ctx = false,
++		},
++	};
 +
 +	vds = kzalloc(sizeof(*vds), GFP_KERNEL);
 +	if (!vds)
@@ -3186,6 +3598,11 @@ index 000000000000..2e24ae99fd8d
 +	kref_init(&vds->refcount);
 +	init_waitqueue_head(&vds->sendq);
 +	INIT_LIST_HEAD(&vds->free_buf_list);
++	mutex_init(&vds->free_rx_lock);
++	INIT_LIST_HEAD(&vds->free_rx_queue);
++	mutex_init(&vds->reclaim_list_lock);
++	INIT_LIST_HEAD(&vds->reclaim_in_progress);
++	init_waitqueue_head(&vds->reclaim_done);
 +	idr_init(&vds->addr_idr);
 +	vds->shared_handles = RB_ROOT;
 +	dma_coerce_mask_and_coherent(&vds->vdev->dev,
@@ -3204,8 +3621,7 @@ index 000000000000..2e24ae99fd8d
 +	vds->cdev_name[sizeof(vds->cdev_name)-1] = '\0';
 +
 +	/* find tx virtqueues (rx and tx and in this order) */
-+	err = vdev->config->find_vqs(vdev, 2, vqs, vq_cbs, vq_names, NULL,
-+				     NULL);
++	err = vdev->config->find_vqs(vdev, 2, vqs, vqs_info, NULL);
 +	if (err)
 +		goto err_find_vqs;
 +
@@ -3236,9 +3652,41 @@ index 000000000000..2e24ae99fd8d
 +	vdev->priv = vds;
 +	vds->state = VDS_OFFLINE;
 +
++#if (KERNEL_VERSION(6, 7, 0) <= LINUX_VERSION_CODE)
++	vds->mb_shrinker = shrinker_alloc(0, "trusty-ipc-shrinker");
++	if (!vds->mb_shrinker) {
++		err = -ENOMEM;
++		goto err_shrinker_alloc;
++	}
++
++	vds->mb_shrinker->count_objects = tipc_shrink_count;
++	vds->mb_shrinker->scan_objects = tipc_shrink_scan;
++	vds->mb_shrinker->seeks = DEFAULT_SEEKS;
++	vds->mb_shrinker->private_data = vds;
++	shrinker_register(vds->mb_shrinker);
++#else
++	vds->mb_shrinker.count_objects = tipc_shrink_count;
++	vds->mb_shrinker.scan_objects = tipc_shrink_scan;
++	vds->mb_shrinker.seeks = DEFAULT_SEEKS;
++	vds->mb_shrinker.batch = 0;
++
++	err = register_shrinker(&vds->mb_shrinker
++			TRUSTY_IPC_REGISTER_SHRINKER_ARG
++			);
++#endif
++	if (err) {
++		pr_err("failed to register shrinker: %d\n", err);
++		goto err_register_shrinker;
++	}
++
 +	dev_dbg(&vdev->dev, "%s: done\n", __func__);
 +	return 0;
 +
++err_register_shrinker:
++#if (KERNEL_VERSION(6, 7, 0) <= LINUX_VERSION_CODE)
++	shrinker_free(vds->mb_shrinker);
++err_shrinker_alloc:
++#endif
 +err_free_rx_buffers:
 +	_cleanup_vq(vds, vds->rxvq);
 +err_find_vqs:
@@ -3249,6 +3697,23 @@ index 000000000000..2e24ae99fd8d
 +static void tipc_virtio_remove(struct virtio_device *vdev)
 +{
 +	struct tipc_virtio_dev *vds = vdev->priv;
++	int ret;
++
++	/* freeing msg buffers requires IPC if vds->reuse_msgbuf is set */
++	vds_free_msg_buf_list(vds, &vds->lock, &vds->free_buf_list);
++	vds_free_msg_buf_list(vds, &vds->free_rx_lock, &vds->free_rx_queue);
++
++	/* now wait for Trusty to respond to all unmap requests */
++	if (vds->reuse_msgbuf) {
++		dev_dbg(&vds->vdev->dev, "waiting for Trusty to unmap buffers\n");
++		/* this could never finish, but there's no other way */
++		ret = wait_event_timeout(vds->reclaim_done,
++				list_empty(&vds->reclaim_in_progress),
++				msecs_to_jiffies(30));
++		if (!ret)
++			dev_warn(&vds->vdev->dev,
++					"timed out waiting for Trusty to unmap buffers\n");
++	}
 +
 +	_go_offline(vds);
 +
@@ -3263,7 +3728,6 @@ index 000000000000..2e24ae99fd8d
 +
 +	_cleanup_vq(vds, vds->rxvq);
 +	_cleanup_vq(vds, vds->txvq);
-+	vds_free_msg_buf_list(vds, &vds->free_buf_list);
 +
 +	vdev->config->del_vqs(vds->vdev);
 +
@@ -3343,7 +3807,7 @@ index 000000000000..2e24ae99fd8d
 +MODULE_LICENSE("GPL v2");
 diff --git a/drivers/trusty/trusty-irq-trace.h b/drivers/trusty/trusty-irq-trace.h
 new file mode 100644
-index 000000000000..c3aa3835b930
+index 0000000000000..c3aa3835b9309
 --- /dev/null
 +++ b/drivers/trusty/trusty-irq-trace.h
 @@ -0,0 +1,32 @@
@@ -3381,10 +3845,10 @@ index 000000000000..c3aa3835b930
 +#include <trace/define_trace.h>
 diff --git a/drivers/trusty/trusty-irq.c b/drivers/trusty/trusty-irq.c
 new file mode 100644
-index 000000000000..ddec1c6ae7cb
+index 0000000000000..6df31227d44fd
 --- /dev/null
 +++ b/drivers/trusty/trusty-irq.c
-@@ -0,0 +1,673 @@
+@@ -0,0 +1,642 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2013 Google, Inc.
@@ -3430,7 +3894,6 @@ index 000000000000..ddec1c6ae7cb
 +	struct trusty_irq_irqset __percpu *percpu_irqs;
 +	struct notifier_block trusty_call_notifier;
 +	struct hlist_node cpuhp_node;
-+	bool gicv3_workaround;
 +};
 +
 +static int trusty_irq_cpuhp_slot = -1;
@@ -3519,22 +3982,13 @@ index 000000000000..ddec1c6ae7cb
 +{
 +	struct trusty_irq_state *is;
 +
-+	is = container_of(nb, struct trusty_irq_state, trusty_call_notifier);
-+
-+	/*
-+	 * If use GICv3, we trigger the nop to Trusty OS
-+	 * directly instead of yield another pending
-+	 * IRQ.
-+	 */
-+	if (is->gicv3_workaround) {
-+	    return NOTIFY_OK;
-+	}
-+
 +	if (WARN_ON(!irqs_disabled()))
 +		return NOTIFY_DONE;
 +
 +	if (action != TRUSTY_CALL_PREPARE)
 +		return NOTIFY_DONE;
++
++	is = container_of(nb, struct trusty_irq_state, trusty_call_notifier);
 +
 +	spin_lock(&is->normal_irqs_lock);
 +	trusty_irq_enable_pending_irqs(is, &is->normal_irqs, false);
@@ -3549,17 +4003,6 @@ index 000000000000..ddec1c6ae7cb
 +	struct trusty_irq *trusty_irq = data;
 +	struct trusty_irq_state *is = trusty_irq->is;
 +	struct trusty_irq_irqset *irqset;
-+
-+	/*
-+	 * If use GICv3, we trigger the nop to Trusty OS
-+	 * directly instead of yield another pending
-+	 * IRQ.
-+	 */
-+	if (is->gicv3_workaround) {
-+	    trusty_enqueue_nop(is->trusty_dev, NULL);
-+	    return IRQ_HANDLED;
-+	}
-+
 +
 +	dev_dbg(is->dev, "%s: irq %d, percpu %d, cpu %d, enable %d\n",
 +		__func__, irq, trusty_irq->irq, smp_processor_id(),
@@ -3933,12 +4376,6 @@ index 000000000000..ddec1c6ae7cb
 +	}
 +
 +	platform_set_drvdata(pdev, is);
-+	if (of_find_property(is->dev->of_node, "use-gicv3-workaround", NULL)) {
-+	    is->gicv3_workaround = true;
-+	} else {
-+	    is->gicv3_workaround = false;
-+	}
-+
 +
 +	is->trusty_call_notifier.notifier_call = trusty_irq_call_notify;
 +	ret = trusty_call_notifier_register(is->trusty_dev,
@@ -3980,16 +4417,14 @@ index 000000000000..ddec1c6ae7cb
 +	return ret;
 +}
 +
-+static int trusty_irq_remove(struct platform_device *pdev)
++static void trusty_irq_remove(struct platform_device *pdev)
 +{
-+	int ret;
 +	unsigned long irq_flags;
 +	struct trusty_irq_state *is = platform_get_drvdata(pdev);
 +
-+	ret = cpuhp_state_remove_instance(trusty_irq_cpuhp_slot,
-+					  &is->cpuhp_node);
-+	if (WARN_ON(ret))
-+		return ret;
++	if (WARN_ON(cpuhp_state_remove_instance(trusty_irq_cpuhp_slot,
++						&is->cpuhp_node)))
++		return;
 +
 +	spin_lock_irqsave(&is->normal_irqs_lock, irq_flags);
 +	trusty_irq_disable_irqset(is, &is->normal_irqs);
@@ -4001,8 +4436,6 @@ index 000000000000..ddec1c6ae7cb
 +					&is->trusty_call_notifier);
 +	free_percpu(is->percpu_irqs);
 +	kfree(is);
-+
-+	return 0;
 +}
 +
 +static const struct of_device_id trusty_test_of_match[] = {
@@ -4060,7 +4493,7 @@ index 000000000000..ddec1c6ae7cb
 +#include "trusty-irq-trace.h"
 diff --git a/drivers/trusty/trusty-irq.h b/drivers/trusty/trusty-irq.h
 new file mode 100644
-index 000000000000..d3444f971d82
+index 0000000000000..d3444f971d822
 --- /dev/null
 +++ b/drivers/trusty/trusty-irq.h
 @@ -0,0 +1,17 @@
@@ -4083,10 +4516,10 @@ index 000000000000..d3444f971d82
 +#endif /* _TRUSTY_IRQ_H */
 diff --git a/drivers/trusty/trusty-log.c b/drivers/trusty/trusty-log.c
 new file mode 100644
-index 000000000000..6a5754585e05
+index 0000000000000..5a1cf988e962b
 --- /dev/null
 +++ b/drivers/trusty/trusty-log.c
-@@ -0,0 +1,999 @@
+@@ -0,0 +1,1020 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2015 Google, Inc.
@@ -4106,6 +4539,7 @@ index 000000000000..6a5754585e05
 +#include <linux/poll.h>
 +#include <linux/seq_file.h>
 +#include <linux/panic_notifier.h>
++#include <linux/vmalloc.h>
 +#include <asm/page.h>
 +#include "trusty-log.h"
 +
@@ -4292,6 +4726,7 @@ index 000000000000..6a5754585e05
 +	u32 last_wake_put;
 +	bool have_first_reader;
 +	bool registered;
++	u32 api_ver;
 +};
 +
 +static inline u32 u32_add_overflow(u32 a, u32 b)
@@ -4855,7 +5290,7 @@ index 000000000000..6a5754585e05
 +	return true;
 +}
 +
-+static int trusty_log_init(struct platform_device *pdev)
++static int trusty_log_init(struct platform_device *pdev, u32 api_ver)
 +{
 +	struct trusty_log_state *s;
 +	struct scatterlist *sg;
@@ -4874,33 +5309,53 @@ index 000000000000..6a5754585e05
 +	spin_lock_init(&s->lock);
 +	s->dev = &pdev->dev;
 +	s->trusty_dev = s->dev->parent;
++	s->api_ver = api_ver;
 +
-+	s->log_num_pages = DIV_ROUND_UP(log_size_param + sizeof(struct log_rb),
++	if (api_ver < TRUSTY_API_VERSION_MEM_OBJ) {
++		/*
++		 * allocate physical continuous memory for
++		 * Trusty api version < TRUSTY_API_VERSION_MEM_OBJ
++		 */
++		s->log_num_pages = 1;
++	} else {
++		s->log_num_pages = DIV_ROUND_UP(log_size_param + sizeof(struct log_rb),
 +					PAGE_SIZE);
++	}
++
 +	s->sg = kcalloc(s->log_num_pages, sizeof(*s->sg), GFP_KERNEL);
 +	if (!s->sg) {
 +		result = -ENOMEM;
 +		goto error_alloc_sg;
 +	}
 +
-+	log_size = s->log_num_pages * PAGE_SIZE;
-+	mem = vzalloc(log_size);
-+	if (!mem) {
-+		result = -ENOMEM;
-+		goto error_alloc_log;
-+	}
-+
-+	s->log = (struct log_rb *)mem;
-+
-+	sg_init_table(s->sg, s->log_num_pages);
-+	for_each_sg(s->sg, sg, s->log_num_pages, i) {
-+		struct page *pg = vmalloc_to_page(mem + (i * PAGE_SIZE));
-+
-+		if (!pg) {
++	if (api_ver < TRUSTY_API_VERSION_MEM_OBJ) {
++		s->log = (struct log_rb *)kzalloc(log_size_param, GFP_KERNEL);
++		if (!(s->log)) {
 +			result = -ENOMEM;
-+			goto err_share_memory;
++			goto error_alloc_log;
 +		}
-+		sg_set_page(sg, pg, PAGE_SIZE, 0);
++		log_size = log_size_param;
++		sg_init_one(s->sg, s->log, log_size_param);
++	} else {
++		log_size = s->log_num_pages * PAGE_SIZE;
++		mem = vzalloc(log_size);
++		if (!mem) {
++			result = -ENOMEM;
++			goto error_alloc_log;
++		}
++
++		s->log = (struct log_rb *)mem;
++
++		sg_init_table(s->sg, s->log_num_pages);
++		for_each_sg(s->sg, sg, s->log_num_pages, i) {
++			struct page *pg = vmalloc_to_page(mem + (i * PAGE_SIZE));
++
++			if (!pg) {
++				result = -ENOMEM;
++				goto err_share_memory;
++			}
++			sg_set_page(sg, pg, PAGE_SIZE, 0);
++		}
 +	}
 +	/*
 +	 * This will fail for Trusty api version < TRUSTY_API_VERSION_MEM_OBJ
@@ -4927,14 +5382,6 @@ index 000000000000..6a5754585e05
 +			"trusty std call (SMC_SC_SHARED_LOG_ADD) failed: %d 0x%llx\n",
 +			result, mem_id);
 +		goto error_std_call;
-+	}
-+
-+	/* Disable the Trusty OS UART console to prevent synchronous IO waiting */
-+	result = trusty_std_call32(s->trusty_dev,
-+		SMC_SC_SHARED_CONSOLE_CTL, TRUSTY_CONSOLE_DISABLE, 0, 0);
-+
-+	if (result != 0) {
-+		pr_err("trusty std call SMC_SC_SHARED_CONSOLE_CTL shutdown console failed\n");
 +	}
 +
 +	init_waitqueue_head(&s->poll_waiters);
@@ -4988,7 +5435,10 @@ index 000000000000..6a5754585e05
 +		 */
 +	} else {
 +err_share_memory:
-+		vfree(s->log);
++		if (api_ver < TRUSTY_API_VERSION_MEM_OBJ)
++			kfree(s->log);
++		else
++			vfree(s->log);
 +	}
 +error_alloc_log:
 +	kfree(s->sg);
@@ -5001,26 +5451,27 @@ index 000000000000..6a5754585e05
 +static int trusty_log_probe(struct platform_device *pdev)
 +{
 +	int rc;
++	u32 api_ver;
 +
 +	if (!trusty_supports_logging(pdev->dev.parent))
 +		return -ENXIO;
 +
-+	rc = trusty_log_init(pdev);
-+	if (rc && log_size_param > TRUSTY_LOG_MIN_SIZE) {
-+		dev_warn(&pdev->dev, "init failed, retrying with 1-page log\n");
-+		log_size_param = TRUSTY_LOG_MIN_SIZE;
-+		rc = trusty_log_init(pdev);
++	api_ver = trusty_get_api_version(pdev->dev.parent);
++	if (api_ver < TRUSTY_API_VERSION_MEM_OBJ) {
++		// use default log size regardless of trusty_log.log_size
++		log_size_param = TRUSTY_LOG_DEFAULT_SIZE;
 +	}
++
++	rc = trusty_log_init(pdev, api_ver);
 +	return rc;
 +}
 +
-+static int trusty_log_remove(struct platform_device *pdev)
++static void trusty_log_remove(struct platform_device *pdev)
 +{
 +	struct trusty_log_state *s = platform_get_drvdata(pdev);
 +
 +	trusty_log_sfile_unregister(s);
 +	kref_put(&s->refcount, trusty_log_cleanup);
-+	return 0;
 +}
 +
 +static void trusty_log_cleanup(struct kref *ref)
@@ -5054,7 +5505,10 @@ index 000000000000..6a5754585e05
 +		 * It is not safe to free this memory if trusty_revoke_memory
 +		 * fails. Leak it in that case.
 +		 */
-+		vfree(s->log);
++		if (s->api_ver < TRUSTY_API_VERSION_MEM_OBJ)
++			kfree(s->log);
++		else
++			vfree(s->log);
 +	}
 +	kfree(s->sg);
 +	kfree(s);
@@ -5088,10 +5542,10 @@ index 000000000000..6a5754585e05
 +MODULE_DESCRIPTION("Trusty logging driver");
 diff --git a/drivers/trusty/trusty-log.h b/drivers/trusty/trusty-log.h
 new file mode 100644
-index 000000000000..25ad65f0dbfd
+index 0000000000000..7b5e6096b51e9
 --- /dev/null
 +++ b/drivers/trusty/trusty-log.h
-@@ -0,0 +1,33 @@
+@@ -0,0 +1,28 @@
 +/* SPDX-License-Identifier: MIT */
 +/*
 + * Copyright (c) 2015 Google, Inc.
@@ -5118,16 +5572,11 @@ index 000000000000..25ad65f0dbfd
 +
 +#define TRUSTY_LOG_API_VERSION	1
 +
-+#define SMC_ENTITY_CONSOLE 52
-+#define SMC_SC_SHARED_CONSOLE_CTL SMC_STDCALL_NR(SMC_ENTITY_CONSOLE, 0)
-+#define TRUSTY_CONSOLE_DISABLE 0
-+#define TRUSTY_CONSOLE_ENABLE 1
-+
 +#endif
 +
 diff --git a/drivers/trusty/trusty-mem.c b/drivers/trusty/trusty-mem.c
 new file mode 100644
-index 000000000000..8a360298e501
+index 0000000000000..8a360298e5017
 --- /dev/null
 +++ b/drivers/trusty/trusty-mem.c
 @@ -0,0 +1,139 @@
@@ -5272,7 +5721,7 @@ index 000000000000..8a360298e501
 +}
 diff --git a/drivers/trusty/trusty-sched-share-api.h b/drivers/trusty/trusty-sched-share-api.h
 new file mode 100644
-index 000000000000..412704a6fbe8
+index 0000000000000..412704a6fbe89
 --- /dev/null
 +++ b/drivers/trusty/trusty-sched-share-api.h
 @@ -0,0 +1,27 @@
@@ -5305,10 +5754,10 @@ index 000000000000..412704a6fbe8
 +#endif /* _TRUSTY_SCHED_SHARE_API_H_ */
 diff --git a/drivers/trusty/trusty-sched-share.c b/drivers/trusty/trusty-sched-share.c
 new file mode 100644
-index 000000000000..07e623142b4e
+index 0000000000000..af3e5ac98bb36
 --- /dev/null
 +++ b/drivers/trusty/trusty-sched-share.c
-@@ -0,0 +1,286 @@
+@@ -0,0 +1,288 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (c) 2022 Google, Inc.
@@ -5321,6 +5770,8 @@ index 000000000000..07e623142b4e
 +#include <linux/device.h>
 +#include <linux/slab.h>
 +#include <linux/scatterlist.h>
++#include <linux/vmalloc.h>
++
 +#include <linux/trusty/trusty.h>
 +#include "trusty-sched-share.h"
 +
@@ -5597,7 +6048,7 @@ index 000000000000..07e623142b4e
 +}
 diff --git a/drivers/trusty/trusty-sched-share.h b/drivers/trusty/trusty-sched-share.h
 new file mode 100644
-index 000000000000..7e59eecbca12
+index 0000000000000..7e59eecbca121
 --- /dev/null
 +++ b/drivers/trusty/trusty-sched-share.h
 @@ -0,0 +1,58 @@
@@ -5661,7 +6112,7 @@ index 000000000000..7e59eecbca12
 +#endif /* _TRUSTY_SCHED_SHARE_H_ */
 diff --git a/drivers/trusty/trusty-smc-arm.S b/drivers/trusty/trusty-smc-arm.S
 new file mode 100644
-index 000000000000..8ff83547d33f
+index 0000000000000..8ff83547d33f7
 --- /dev/null
 +++ b/drivers/trusty/trusty-smc-arm.S
 @@ -0,0 +1,41 @@
@@ -5708,7 +6159,7 @@ index 000000000000..8ff83547d33f
 +ENDPROC(trusty_smc8)
 diff --git a/drivers/trusty/trusty-smc-arm64.S b/drivers/trusty/trusty-smc-arm64.S
 new file mode 100644
-index 000000000000..14c8fed28a5e
+index 0000000000000..14c8fed28a5e1
 --- /dev/null
 +++ b/drivers/trusty/trusty-smc-arm64.S
 @@ -0,0 +1,35 @@
@@ -5749,7 +6200,7 @@ index 000000000000..14c8fed28a5e
 +SYM_FUNC_END(trusty_smc8)
 diff --git a/drivers/trusty/trusty-smc.h b/drivers/trusty/trusty-smc.h
 new file mode 100644
-index 000000000000..b53e5abb4d05
+index 0000000000000..b53e5abb4d056
 --- /dev/null
 +++ b/drivers/trusty/trusty-smc.h
 @@ -0,0 +1,26 @@
@@ -5781,7 +6232,7 @@ index 000000000000..b53e5abb4d05
 +#endif /* _TRUSTY_SMC_H */
 diff --git a/drivers/trusty/trusty-test.c b/drivers/trusty/trusty-test.c
 new file mode 100644
-index 000000000000..844868981fa5
+index 0000000000000..3bf6d41da2ced
 --- /dev/null
 +++ b/drivers/trusty/trusty-test.c
 @@ -0,0 +1,440 @@
@@ -5800,6 +6251,7 @@ index 000000000000..844868981fa5
 +#include <linux/mm.h>
 +#include <linux/mod_devicetable.h>
 +#include <linux/module.h>
++#include <linux/vmalloc.h>
 +
 +#include "trusty-test.h"
 +
@@ -6196,12 +6648,11 @@ index 000000000000..844868981fa5
 +	return 0;
 +}
 +
-+static int trusty_test_remove(struct platform_device *pdev)
++static void trusty_test_remove(struct platform_device *pdev)
 +{
 +	struct trusty_log_state *s = platform_get_drvdata(pdev);
 +
 +	kfree(s);
-+	return 0;
 +}
 +
 +static const struct of_device_id trusty_test_of_match[] = {
@@ -6227,7 +6678,7 @@ index 000000000000..844868981fa5
 +MODULE_DESCRIPTION("Trusty test driver");
 diff --git a/drivers/trusty/trusty-test.h b/drivers/trusty/trusty-test.h
 new file mode 100644
-index 000000000000..eea7beb96876
+index 0000000000000..eea7beb968763
 --- /dev/null
 +++ b/drivers/trusty/trusty-test.h
 @@ -0,0 +1,13 @@
@@ -6246,7 +6697,7 @@ index 000000000000..eea7beb96876
 +#endif /* _TRUSTY_TEST_H */
 diff --git a/drivers/trusty/trusty-trace.h b/drivers/trusty/trusty-trace.h
 new file mode 100644
-index 000000000000..f4157931f961
+index 0000000000000..f4157931f9616
 --- /dev/null
 +++ b/drivers/trusty/trusty-trace.h
 @@ -0,0 +1,268 @@
@@ -6520,10 +6971,10 @@ index 000000000000..f4157931f961
 +#include <trace/define_trace.h>
 diff --git a/drivers/trusty/trusty-virtio.c b/drivers/trusty/trusty-virtio.c
 new file mode 100644
-index 000000000000..2df10d1592b0
+index 0000000000000..227c53aab4eb9
 --- /dev/null
 +++ b/drivers/trusty/trusty-virtio.c
-@@ -0,0 +1,843 @@
+@@ -0,0 +1,852 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Trusty Virtio driver
@@ -6935,20 +7386,20 @@ index 000000000000..2df10d1592b0
 +
 +static int trusty_virtio_find_vqs(struct virtio_device *vdev, unsigned int nvqs,
 +				  struct virtqueue *vqs[],
-+				  vq_callback_t *callbacks[],
-+				  const char * const names[],
-+				  const bool *ctxs,
++				  struct virtqueue_info vqs_info[],
 +				  struct irq_affinity *desc)
 +{
++	struct virtqueue_info *vqi;
 +	unsigned int i;
 +	int ret;
 +	bool ctx = false;
 +
 +	for (i = 0; i < nvqs; i++) {
++		vqi = &vqs_info[i];
 +		ctx = false;
-+		if (ctxs)
-+			ctx = ctxs[i];
-+		vqs[i] = _find_vq(vdev, i, callbacks[i], names[i], ctx);
++		if (vqi->ctx)
++			ctx = vqi->ctx;
++		vqs[i] = _find_vq(vdev, i, vqi->callback, vqi->name, ctx);
 +		if (IS_ERR(vqs[i])) {
 +			ret = PTR_ERR(vqs[i]);
 +			_del_vqs(vdev);
@@ -7241,8 +7692,18 @@ index 000000000000..2df10d1592b0
 +	return buf->buf_id;
 +}
 +
++static void trusty_virtio_dma_unmap_page(struct device *dev,
++					 dma_addr_t dma_handle,
++					 size_t size,
++					 enum dma_data_direction dir,
++					 unsigned long attrs)
++{
++	return;
++}
++
 +static const struct dma_map_ops trusty_virtio_dma_map_ops = {
 +	.map_page = trusty_virtio_dma_map_page,
++	.unmap_page = trusty_virtio_dma_unmap_page,
 +};
 +
 +static int trusty_virtio_probe(struct platform_device *pdev)
@@ -7298,7 +7759,7 @@ index 000000000000..2df10d1592b0
 +	return ret;
 +}
 +
-+static int trusty_virtio_remove(struct platform_device *pdev)
++static void trusty_virtio_remove(struct platform_device *pdev)
 +{
 +	struct trusty_ctx *tctx = platform_get_drvdata(pdev);
 +	int ret;
@@ -7335,7 +7796,6 @@ index 000000000000..2df10d1592b0
 +
 +	/* free context */
 +	kfree(tctx);
-+	return 0;
 +}
 +
 +static const struct of_device_id trusty_of_match[] = {
@@ -7369,10 +7829,10 @@ index 000000000000..2df10d1592b0
 +MODULE_SOFTDEP("pre: trusty-ipc");
 diff --git a/drivers/trusty/trusty.c b/drivers/trusty/trusty.c
 new file mode 100644
-index 000000000000..4a1e3e74cdc9
+index 0000000000000..aa2da88319235
 --- /dev/null
 +++ b/drivers/trusty/trusty.c
-@@ -0,0 +1,1281 @@
+@@ -0,0 +1,1266 @@
 +// SPDX-License-Identifier: GPL-2.0-only
 +/*
 + * Copyright (C) 2013 Google, Inc.
@@ -7438,7 +7898,6 @@ index 000000000000..4a1e3e74cdc9
 +	u16 ffa_local_id;
 +	u16 ffa_remote_id;
 +	struct mutex share_memory_msg_lock; /* protects share_memory_msg */
-+	bool gicv3_workaround;
 +};
 +
 +static inline unsigned long smc(unsigned long r0, unsigned long r1,
@@ -7519,13 +7978,7 @@ index 000000000000..4a1e3e74cdc9
 +	struct trusty_state *s = platform_get_drvdata(to_platform_device(dev));
 +
 +	while (true) {
-+		/*
-+		 * In GICv3, we don't use non-secure world generated interrupt
-+		 * so no need disable IRQ here. Or the non-secure IRQ will never
-+		 * be handle before the SMC process exited.
-+		 */
-+		if (!s->gicv3_workaround)
-+			local_irq_disable();
++		local_irq_disable();
 +
 +		/* tell Trusty scheduler what the current priority is */
 +		WARN_ON_ONCE(current->policy != SCHED_NORMAL);
@@ -7553,8 +8006,7 @@ index 000000000000..4a1e3e74cdc9
 +			 */
 +			trusty_enqueue_nop(dev, NULL);
 +		}
-+		if (!s->gicv3_workaround)
-+			local_irq_enable();
++		local_irq_enable();
 +
 +		if ((int)ret != SM_ERR_BUSY)
 +			break;
@@ -8397,6 +8849,7 @@ index 000000000000..4a1e3e74cdc9
 +
 +	s = container_of(node, struct trusty_state, cpuhp_node);
 +	tw = this_cpu_ptr(s->nop_works);
++	set_cpus_allowed_ptr(tw->nop_thread, cpumask_of(cpu));
 +	kthread_unpark(tw->nop_thread);
 +
 +	dev_dbg(s->dev, "cpu %d up\n", cpu);
@@ -8492,7 +8945,6 @@ index 000000000000..4a1e3e74cdc9
 +					__func__, cpu, tw->nop_thread);
 +			goto err_thread_create;
 +		}
-+		kthread_set_per_cpu(tw->nop_thread, cpu);
 +		kthread_park(tw->nop_thread);
 +	}
 +
@@ -8520,12 +8972,6 @@ index 000000000000..4a1e3e74cdc9
 +	 * versions that don't support priority sharing
 +	 */
 +	trusty_register_sched_share(s->dev, s->trusty_sched_share_state);
-+
-+	if (of_find_property(s->dev->of_node, "use-gicv3-workaround", NULL)) {
-+		s->gicv3_workaround = true;
-+	} else {
-+		s->gicv3_workaround = false;
-+	}
 +
 +	return 0;
 +
@@ -8556,7 +9002,7 @@ index 000000000000..4a1e3e74cdc9
 +	return ret;
 +}
 +
-+static int trusty_remove(struct platform_device *pdev)
++static void trusty_remove(struct platform_device *pdev)
 +{
 +	unsigned int cpu;
 +	struct trusty_state *s = platform_get_drvdata(pdev);
@@ -8582,7 +9028,6 @@ index 000000000000..4a1e3e74cdc9
 +	s->dev->dma_parms = NULL;
 +	kfree(s->version_str);
 +	kfree(s);
-+	return 0;
 +}
 +
 +static const struct of_device_id trusty_of_match[] = {
@@ -8656,7 +9101,7 @@ index 000000000000..4a1e3e74cdc9
 +MODULE_DESCRIPTION("Trusty core driver");
 diff --git a/include/linux/trusty/OWNERS b/include/linux/trusty/OWNERS
 new file mode 100644
-index 000000000000..0f6b8454aafc
+index 0000000000000..0f6b8454aafcf
 --- /dev/null
 +++ b/include/linux/trusty/OWNERS
 @@ -0,0 +1,2 @@
@@ -8664,7 +9109,7 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/include/linux/trusty/arm_ffa.h b/include/linux/trusty/arm_ffa.h
 new file mode 100644
-index 000000000000..95d31b32bac6
+index 0000000000000..95d31b32bac6d
 --- /dev/null
 +++ b/include/linux/trusty/arm_ffa.h
 @@ -0,0 +1,597 @@
@@ -9267,7 +9712,7 @@ index 000000000000..95d31b32bac6
 +#endif /* __LINUX_TRUSTY_ARM_FFA_H */
 diff --git a/include/linux/trusty/sm_err.h b/include/linux/trusty/sm_err.h
 new file mode 100644
-index 000000000000..f6504448c6c3
+index 0000000000000..f6504448c6c32
 --- /dev/null
 +++ b/include/linux/trusty/sm_err.h
 @@ -0,0 +1,28 @@
@@ -9301,7 +9746,7 @@ index 000000000000..f6504448c6c3
 +#endif
 diff --git a/include/linux/trusty/smcall.h b/include/linux/trusty/smcall.h
 new file mode 100644
-index 000000000000..9ce498d90d7c
+index 0000000000000..9ce498d90d7cf
 --- /dev/null
 +++ b/include/linux/trusty/smcall.h
 @@ -0,0 +1,154 @@
@@ -9461,7 +9906,7 @@ index 000000000000..9ce498d90d7c
 +#endif /* __LINUX_TRUSTY_SMCALL_H */
 diff --git a/include/linux/trusty/trusty.h b/include/linux/trusty/trusty.h
 new file mode 100644
-index 000000000000..751e5c712adb
+index 0000000000000..751e5c712adba
 --- /dev/null
 +++ b/include/linux/trusty/trusty.h
 @@ -0,0 +1,138 @@
@@ -9605,7 +10050,7 @@ index 000000000000..751e5c712adb
 +#endif
 diff --git a/include/linux/trusty/trusty_ipc.h b/include/linux/trusty/trusty_ipc.h
 new file mode 100644
-index 000000000000..3b17ddb7f23e
+index 0000000000000..3b17ddb7f23ee
 --- /dev/null
 +++ b/include/linux/trusty/trusty_ipc.h
 @@ -0,0 +1,90 @@
@@ -9701,7 +10146,7 @@ index 000000000000..3b17ddb7f23e
 +
 diff --git a/include/uapi/linux/trusty/OWNERS b/include/uapi/linux/trusty/OWNERS
 new file mode 100644
-index 000000000000..0f6b8454aafc
+index 0000000000000..0f6b8454aafcf
 --- /dev/null
 +++ b/include/uapi/linux/trusty/OWNERS
 @@ -0,0 +1,2 @@
@@ -9709,7 +10154,7 @@ index 000000000000..0f6b8454aafc
 +include trusty:refs/meta/config:/OWNERS
 diff --git a/include/uapi/linux/trusty/ipc.h b/include/uapi/linux/trusty/ipc.h
 new file mode 100644
-index 000000000000..af91035484f1
+index 0000000000000..af91035484f10
 --- /dev/null
 +++ b/include/uapi/linux/trusty/ipc.h
 @@ -0,0 +1,65 @@
@@ -9779,7 +10224,7 @@ index 000000000000..af91035484f1
 +
 +#endif
 diff --git a/include/uapi/linux/virtio_ids.h b/include/uapi/linux/virtio_ids.h
-index 7aa2eb766205..a01272f7e780 100644
+index 7aa2eb7662050..a01272f7e7805 100644
 --- a/include/uapi/linux/virtio_ids.h
 +++ b/include/uapi/linux/virtio_ids.h
 @@ -41,7 +41,7 @@
