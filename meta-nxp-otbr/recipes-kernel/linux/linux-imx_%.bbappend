@@ -9,8 +9,6 @@ def get_arm_arch(d):
     return "file://kernel-config/0001-Add-Matter-and-OTBR-configs.cfg"
 
 SRC_URI += "file://patches/0002-Enable-otbr-and-firewall-configs-for-imx6-7.patch"
-SRC_URI += "file://patches/0001-Add-imx8mm-evk-iw612-otbr-dtb-support.patch"
-SRC_URI += "file://patches/0002-Add-i.MX91-device-tree-to-support-IW612-SPI-RCP.patch"
 SRC_URI += "file://patches/Disable-Power-Save-mode-for-BT.patch"
 
 SRC_URI += "${@get_arm_arch(d)}"
