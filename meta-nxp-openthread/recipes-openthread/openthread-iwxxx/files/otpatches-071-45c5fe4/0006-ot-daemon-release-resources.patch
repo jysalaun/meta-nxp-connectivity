@@ -36,7 +36,7 @@
 *                         resources have not been released before exiting.
 */
 
-Upstream-Status: Inappropriate [platform specific changes]
+Upstream-Status: Inappropriate  [platform specific changes]
 
 diff --git a/src/posix/platform/hdlc_interface.cpp b/src/posix/platform/hdlc_interface.cpp
 index 321bfbae2..f6dc11bb3 100644

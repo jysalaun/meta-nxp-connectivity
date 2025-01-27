@@ -20,7 +20,9 @@ do_configure:prepend () {
 
 inherit cmake
 include iw610_otbr_src_rev_opts_patches.inc
+SRC_URI += "file://0001-build-fix-on-macOS-2269.patch"
 SRC_URI += "file://0002-copy-prebuilt-frontend-files-instead-of-build.patch"
 
-EXTRA_OECMAKE += " -DOT_POSIX_RCP_SPI_BUS=ON -DOTBR_WEB=ON "
+EXTRA_OECMAKE += " -DCMAKE_CXX_FLAGS="${CXXFLAGS}"" -Wno-error=attributes""" -DOT_POSIX_RCP_SPI_BUS=ON -DOTBR_WEB=ON "
 BIN_NAME_PATTERN="-iw610-spi"
+INSANE_SKIP:${PN} += "buildpaths"
