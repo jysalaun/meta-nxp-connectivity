@@ -12,6 +12,6 @@ RDEPENDS_${PN} += " readline "
 
 SRC_URI = ""
 # Zigbee RCP applications
-SRC_URI += "file://zigbee-rcp-apps-IW612-Q4-24-R3.tar"
+SRC_URI += "file://zigbee-rcp-apps-IW612-Q1-25-RC3.tar"
 
 inherit pkgconfig cmake
