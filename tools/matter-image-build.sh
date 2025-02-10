@@ -4,6 +4,7 @@
 MACHINE_LIST="\
  imx93evk-iwxxx-matter \
  imx91evk-iwxxx-matter \
+ imx91qsb-iwxxx-matter \
  imx8mmevk-matter \
  imx8mpevk-matter \
  imx8mnevk-matter \
