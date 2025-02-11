@@ -1,17 +1,100 @@
 #!/bin/bash
 
-# Sample machine list
-MACHINE_LIST="\
- imx93evk-iwxxx-matter \
- imx91evk-iwxxx-matter \
- imx91qsb-iwxxx-matter \
- imx8mmevk-matter \
- imx8mpevk-matter \
- imx8mnevk-matter \
- imx8mnddr3levk-matter \
- imx8ulpevk-matter \
- imx6ullevk \
-"
+# Default machine list as array
+DEFAULT_MACHINES=(
+    "imx93evk-iwxxx-matter"
+    "imx91evk-iwxxx-matter"
+    "imx91qsb-iwxxx-matter"
+    "imx8mmevk-matter"
+    "imx8mpevk-matter"
+    "imx8mnevk-matter"
+    "imx8mnddr3levk-matter"
+    "imx8ulpevk-matter"
+    "imx6ullevk"
+)
+
+# Show SCP configuration menu
+show_scp_menu() {
+    local MENU_HEIGHT=10
+    local MENU_WIDTH=60
+    local CHOICE_HEIGHT=3
+
+    if [ -z "${SCP_TARGET_PATH}" ]; then
+        local BUTTON="Start"
+    else
+        local BUTTON="Next"
+    fi
+
+    # Display main menu
+    local choice
+    choice=$(whiptail --title "SCP Configuration" \
+        --menu "\nChoose an action:" \
+        $MENU_HEIGHT $MENU_WIDTH $CHOICE_HEIGHT \
+        "$BUTTON" "Configure SCP target path and start building" \
+        "Skip_SCP" "Skip SCP copy process" \
+        "Cancel" "Cancel operation" 3>&1 1>&2 2>&3)
+
+    if [ $? -ne 0 ] || [ "$choice" = "Cancel" ]; then
+        echo "User canceled the operation. Exiting program." >&2
+        exit 1
+    fi
+
+    if [ "$choice" = "Skip_SCP" ]; then
+        SCP_TARGET_PATH=""
+        return 0
+    fi
+
+    # If Start/Next is chosen, display input box
+    local scp_input
+    scp_input=$(whiptail --title "Set SCP target path" \
+        --inputbox "\nPlease enter the SCP target path:" \
+        10 60 "${SCP_TARGET_PATH}" 3>&1 1>&2 2>&3)
+
+    if [ $? -ne 0 ]; then
+        echo "User canceled the operation. Exiting program." >&2
+        exit 1
+    fi
+
+    # Update SCP_TARGET_PATH
+    SCP_TARGET_PATH="$scp_input"
+    export SCP_TARGET_PATH
+}
+
+# Show machine selection menu
+show_machine_menu() {
+    local machine_list=()
+    for machine in "${DEFAULT_MACHINES[@]}"; do
+        machine_list+=("$machine" " " ON)
+    done
+
+    local selected
+    selected=$(whiptail --title "Select build target" \
+                        --checklist "\nUse space to select the machines you want to build, use arrow keys to navigate" 20 60 10 "${machine_list[@]}" 3>&1 1>&2 2>&3)
+
+    if [ $? -ne 0 ]; then
+        echo "User canceled selection. Exiting program." >&2
+        exit 1
+    fi
+
+    # Process user selection results
+    readarray -t SELECTED_MACHINES <<< "$(echo "$selected" | tr -d '"' | tr ' ' '\n')"
+
+    # Check at least one is selected
+    if [ ${#SELECTED_MACHINES[@]} -eq 0 ]; then
+        echo "Error: Please select at least one build target." >&2
+        exit 1
+    fi
+
+    # Construct machine list string
+    MACHINE_LIST=$(printf " %s" "${SELECTED_MACHINES[@]}")
+    export MACHINE_LIST
+
+    # Display SCP configuration menu
+    show_scp_menu
+}
+
+# Show machine selection menu
+show_machine_menu
 
 CODEBASE="${CODEBASE:-}"
 SCP_TARGET_PATH="${SCP_TARGET_PATH:-}"
@@ -170,13 +253,13 @@ build_machine() {
 }
 
 # Main build loop
-total_machines=$(echo "${MACHINE_LIST}" | wc -w)
+total_machines=${#SELECTED_MACHINES[@]}
 current_machine=0
 failed_machines=""
 script_start_time=$(date +%s)
 
-# First phase: Build all machines
-for machine_name in ${MACHINE_LIST}; do
+# First phase: Build selected machines
+for machine_name in "${SELECTED_MACHINES[@]}"; do
     current_machine=$((current_machine + 1))
     log "INFO" "Processing machine ${current_machine}/${total_machines}: ${RED}${machine_name}${NC}"
     echo "${SEPARATOR}" >> "${LOG_FILE}"
