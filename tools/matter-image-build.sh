@@ -9,7 +9,7 @@ MACHINE_LIST="\
  imx8mpevk-matter \
  imx8mnevk-matter \
  imx8mnddr3levk-matter \
- imx8ulpevk \
+ imx8ulpevk-matter \
  imx6ullevk \
 "
 
