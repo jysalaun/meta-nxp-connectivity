@@ -10,7 +10,7 @@ PACKAGES = "${PN} ${PN}-dev ${PN}-dbg ${PN}-staticdev"
 
 SRC_URI = ""
 # Zigbee tarball
-SRC_URI += "file://zigbee-rcp-sdk-IW612-Q1-25-RC3.tar"
+SRC_URI += "file://zigbee-rcp-sdk-IW612-Q1-25-R3.tar"
 
 INSANE_SKIP:${PN} += "already-stripped"
 
