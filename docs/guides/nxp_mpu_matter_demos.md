@@ -18,7 +18,7 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
 ## Hardware requirements
 
-- i.MX93 EVK + IW612(WiFi-BT-Thread tri-radio chipset)  → Role: Matter controller or Matter end device
+- i.MX93 FRDM / i.MX93 EVK + IW612(WiFi-BT-Thread tri-radio chipset)  → Role: Matter controller or Matter end device
 
 - i.MX8M Mini EVK + 88W8987(WiFi-BT combo module)  → Role: Matter controller or Matter end device
 
@@ -26,7 +26,7 @@ This document describes how to use the Matter demos on the i.MX MPU platforms. I
 
 - i.MX8ULP EVK + IW416(WiFi-BT combo module)  → Role: Matter controller or Matter end device
 
-- i.MX91 EVK + IW610(WiFi-BT-Thread tri-radio chipset)  → Role: Matter controller or Matter end device
+- i.MX91 EVK / i.MX91 QSB + IW610(WiFi-BT-Thread tri-radio chipset)  → Role: Matter controller or Matter end device
 
    For more information on the details of the i.MX MPU Matter platforms, please visit [NXP MPU Matter platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
@@ -57,7 +57,7 @@ For devices that support the Thread protocol, this guide uses the NXP K32W DK6 m
 
  <img src="../images/matter_demos/imx9-otbr.png" width = "500"/>
 
-Figure Matter with OTBR network topology diagram for i.MX93 EVK and i.MX91 EVK
+Figure Matter with OTBR network topology diagram for i.MX93 FRDM, i.MX93 EVK, i.MX91 EVK and i.MX91 QSB
 
  <img src="../images/matter_demos/imx8mm_imx6ull_imx8ulp-otbr.png" width = "500"/>
 
@@ -81,7 +81,28 @@ step1. Save the Wi-Fi SSID and password to a file.
 
 Step2. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX MPU Platform.
 
-#### For i.MX93 EVK + IW612 and i.MX91 EVK + IW612 platform:
+#### For i.MX93 FRDM / i.MX93 EVK + IW612 and i.MX91 EVK / i.MX91 QSB + IW610 platform:
+
+For i.MX93 FRDM, it is essential to modify the fdtfile for it to work properly. You should enter uboot mode and run follow commands to set the fdtfile, save fdtfile setting, and boot the board.
+
+        u-boot=> print fdtfile
+        fdtfile=imx93-11x11-evk-ffu_gpio_irq.dtb
+        u-boot=> fatls mmc 1
+        u-boot=> fatls mmc 1
+        35183104   Image
+            64421   imx93-11x11-evk.dtb
+            50672   imx93-11x11-evk-ffu_gpio_irq.dtb
+            45915   imx93-11x11-frdm.dtb
+            ......
+
+        u-boot=> setenv fdtfile imx93-11x11-frdm.dtb
+        u-boot=> saveenv
+        Saving Environment to MMC... Writing to MMC(1)... OK
+        u-boot=> print fdtfile
+        fdtfile=imx93-11x11-frdm.dtb
+        u-boot=> boot
+
+Then setup by running the following commands:
 
         、、、
         ifconfig eth0 down
@@ -110,7 +131,20 @@ Step2. Connecting to the Wi-Fi AP, Enabling BT, and Setting Up OTBR on the i.MX 
         otbr-web &
         、、、
 
-***Note: please use the otbr-agent-iw610-spi instead of otbr-agent-iwxxx-spi on i.MX91 device.***
+<a name="check-gpio-device"></a>
+
+**Note: The GPIO device may change, you can use the "gpioinfo" command to determine gpio-reset-device and gpio-int-device. For example, in the fowllowing case, you need use "gpio-reset-device=/dev/gpiochip0" for gpio-reset-device and "gpio-int-device=/dev/gpiochip5" for gpio-int-device. This means you have to start the otbr-agent with the command "otbr-agent-iwxxx-spi -I wpan0 -B mlan0 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip0&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' & "**
+
+        $ gpioinfo
+        gpiochip0 - 8 lines:
+            ...
+            line   1:       "IWxxx_NB_IND_RST_15_4" output consumer="SOC_THREAD_RESET"
+            ...
+
+        gpiochip5 - 24 lines:
+            ...
+            line  10:       "IWxxx_NB_SPI_INT"      input consumer="THREAD_SOC_INT"
+            ...
 
 #### For i.MX8M Mini EVK + 88W8987 + K32W platform or i.MX8ULP EVK + IW416 + K32W platform:
 
@@ -195,7 +229,7 @@ Then, you should get thread network credentials information.
     $ ot-ctl dataset active -x
     # Then you will get a dataset like "0e080000000000010000000300001035060004001fffe00208d625374d9c65c2a30708fd57eb72a74fa52505108a177ca3b66becf3bbe2149eb3d135c8030f4f70656e5468726561642d656338350102ec85041044ac05395e78940b72c1df1e6ad02a120c0402a0f7f8"
 
-***Note: please use the ot-ctl-iwxxx-spi instead of ot-ctl on i.MX93 and use the ot-ctl-iw610-spi on i.MX91 device.***
+***Note: please use the ot-ctl-iwxxx-spi instead of ot-ctl on i.MX9 series platform.***
 
 ### Factory reset lighting application on K32W DK6
 
@@ -240,11 +274,10 @@ Please use below commands to setup ot-daemon on an device:
     #For i.MX8M Mini EVK + 88W8987, i.MX8ULP EVK and i.MX6ULL EVK + 88W8987 with K32W RCP:
     $ ot-daemon 'spinel+hdlc+uart:///dev/ttyUSB0?uart-baudrate=1000000' &
 
-    #For i.MX93 EVK + IW612:
+    #For i.MX93 FRDM / i.MX93 EVK + IW612, i.MX91 EVK / i.MX91 QSB + IW610:
     $ ot-daemon-iwxxx-spi 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
 
-    #For i.MX91 EVK + IW610:
-    $ ot-daemon-iw610-spi 'spinel+spi:///dev/spidev0.0?gpio-reset-device=/dev/gpiochip4&gpio-int-device=/dev/gpiochip5&gpio-int-line=10&gpio-reset-line=1&spi-mode=0&spi-speed=1000000&spi-reset-delay=0' &
+**Note: Please [check GPIO device](#check-gpio-device) to determine gpio-reset-device and gpio-int-device.**
 
 You can test the ot-daemon with another device running otbr-agent, [start the thread network](#start-thread) on the other device.
 
@@ -254,7 +287,7 @@ Then you can form the Openthread network manually by following steps on the devi
     $ ot-client-ctl ifconfig up
     $ ot-client-ctl thread start
 
-***Note: please use the ot-client-iwxxx-spi instead of ot-client-ctl on i.MX93 and ot-client-iw610-spi on i.MX91 device.***
+***Note: please use the ot-client-iwxxx-spi instead of ot-client-ctl on i.MX9 series platform.***
 
 <a name="other-matter-demos"></a>
 
@@ -287,8 +320,6 @@ step1. Save Wi-Fi SSID and Password to a file.
 
 step2. Setup BT and connectd to a WiFi AP.
 
-For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK and i.MX91 EVK:
-
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
         wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
@@ -299,7 +330,7 @@ For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK and i.MX91 EVK:
 
 #### Load the Wi-Fi/BT firmware and set up BT on the end device
 
-Load the Wi-Fi/BT firmware and set up BT. For i.MX93 EVK, i.MX8M Mini EVK and i.MX6ULL EVK and i.MX91 EVK:
+Load the Wi-Fi/BT firmware and set up BT:
 
         、、、
         modprobe moal mod_para=nxp/wifi_mod_para.conf
@@ -312,7 +343,7 @@ Load the Wi-Fi/BT firmware and set up BT. For i.MX93 EVK, i.MX8M Mini EVK and i.
 
 After setting up the network on both side platforms, run the example application on the end device.
 
-___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX93 EVK since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, etc. on i.MX93 EVK, you need to run "$ systemctl start nvm_daemon" to enable ELE (only need to run once after each power-up), and then run example applications.___
+___[ELE](https://www.nxp.com/products/nxp-product-information/nxp-product-programs/edgelock-secure-enclave:EDGELOCK-SECURE-ENCLAVE) has been integrated into i.MX9 series platform since the i.MX Matter 2023 Q3 release, so when you run example applications such as chip-lighting-app, nxp-thermostat-app, etc. on i.MX9 series platform, you need to run "$ systemctl start nvm_daemon" to enable ELE (only need to run once after each power-up), and then run example applications.___
 
     # to run chip-lighting-app
     $ chip-lighting-app --wifi --ble-device 0

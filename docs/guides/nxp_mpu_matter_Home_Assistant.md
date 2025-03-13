@@ -12,6 +12,8 @@ The [Home Assistant](https://www.home-assistant.io/) (HA) application runs on bo
 
  [**Commissioning the i.MX Matter device using the i.MX commissioner**](#commissioning-with-imx)
 
+ [**Known issues**](#known-issues)
+
 <a name="overview"></a>
 
 ## Overview
@@ -98,15 +100,15 @@ Step 2. Mount the new partition to the "~/image" folder and restart the docker s
 
 Step 3. Download and deploy the homeassistant and matter-server docker images.
 
-    $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v /PATH_TO_YOUR_CONFIG:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2024.9.0.dev202408250224
-    $ docker run -d --name matter-server --restart=unless-stopped --security-opt apparmor=unconfined -v $(pwd)/data:/data --network=host ghcr.io/home-assistant-libs/python-matter-server:stable
+    $ docker run -d --name homeassistant --privileged --restart=unless-stopped -e TZ=MY_TIME_ZONE -v $(pwd)/config:/config -v /run/dbus:/run/dbus:ro --network=host ghcr.io/home-assistant/home-assistant:2024.9.0.dev202408250224
+    $ docker run -d --name matter-server --restart=unless-stopped --security-opt apparmor=unconfined -v $(pwd)/data:/data --network=host ghcr.io/home-assistant-libs/python-matter-server:6.6.1 --storage-path /data --paa-root-cert-dir /data/credentials
 
 It will take a few minutes to download and deploy the images. You can check the dockers by running "$ docker image" after deploying the dockers.
 
-    $ docker images
-    REPOSITORY                                         TAG                        IMAGE ID       CREATED       SIZE
-    ghcr.io/home-assistant-libs/python-matter-server   stable                     411e6e62bc54   4 days ago    488MB
-    ghcr.io/home-assistant/home-assistant              2024.9.0.dev202408250224   3ec513894eab   5 weeks ago   1.76GB
+    root@cn-szh02-ns-pr002:~# docker images
+    REPOSITORY                                         TAG                        IMAGE ID       CREATED        SIZE
+    ghcr.io/home-assistant-libs/python-matter-server   6.6.1                      4a0c9916e22b   3 months ago   548MB
+    ghcr.io/home-assistant/home-assistant              2024.9.0.dev202408250224   3ec513894eab   6 months ago   1.76GB
 
 <a name="running-app"></a>
 
@@ -126,6 +128,10 @@ First, you can use the commands below to connect to the Wi-Fi AP on the i.MX doc
 
     $ ifconfig mlan0       # check IP address
 
+    # Restart the network to work in the new network environment
+    $ docker restart homeassistant
+    $ docker restart matter-server
+
 Then, connect to the same Wi-Fi AP, open BT on your phone, and open the HA app on you phone and configure the HA server URL.
 
 If you are a new user of this application, you can set the URL when you log in to this application. Enter the URL and click the "Connect" button. The IP address of URL is the i.MX docker device IP address and port is 8123.
@@ -140,7 +146,25 @@ Or you can configure the URL in the settings according to the below steps, click
 
 Figure Configuring the Home Assistant server URL in Settings
 
-After configuring the correct URL, you can use this application normally.
+Once you have connected the Home Assistant server, you should integrate the Python Matter server to communicate with the i.MX Matter device, and the OpenThread Board Router server if you need to communicate with the Matter Thread device.
+
+Integrate the Python Matter server into the Phone application:
+
+Click on "Setting" – "Devices & services" – "Matter(BETA)" – "Integration entries" – enter URL "ws://localhost:5580/ws" – "SUBMIT" to integrate Python Matter Server.
+
+<img src="../images/home_assistant_demo/config-matter_server.png" width = "200"/>
+
+Figure Integrate the Python Matter server
+
+Integrate the Thread Board Router REST API into the Phone application:
+
+Click on "Setting" – "Devices & services" – "Thread" – "CONFIGURE" – "..." at the right of the page – "Add OpenThread Board Router" – Enter URL"http://ip:8081" (IP is the otbr-agent device's IP, it uses 8081 port for REST API by default) – Submit, also set this network as preferred network. Make sure the OTBR has information and credentials as shown below.
+
+Then, go to "Setting" – "Companion app" – "Troubleshooting" – "Sync Thread credentials" to Sync the credentials.
+
+<img src="../images/home_assistant_demo/config-otbr_1.png" width = "200"/><img src="../images/home_assistant_demo/config-otbr_2.png" width = "200"/><img src="../images/home_assistant_demo/config-otbr_3.png" width = "200"/>
+
+Figure Integrate the Thread Board Route
 
 <a name="commissioning-with-phone"></a>
 
@@ -148,12 +172,19 @@ After configuring the correct URL, you can use this application normally.
 
 This chapter shows how to commission an i.MX Matter device using the phone app commissioner.
 
-First, set up the i.MX Matter device. There are two ways to run the Matter application. Take the chip-lighting-app as an example.
+First, set up the i.MX Matter device. There are two ways to run the Matter application. Take the chip-lighting-app as an example. You can also setup the Matter application on a Thread device.
+
+Please run the commands below if the i.MX Matter device is i.MX93 or i.MX91 to enable the ele. Other board please just go to option 1 or option 2.
+
+    $ systemctl enable nvm_daemon
+    $ systemctl start nvm_daemon
+    $ systemctl status nvm_daemon # make sure the daemon active and running.
 
 Option 1
 
     $ wpa_passphrase ${SSID} ${PASSWORD} > wifiap.conf
     $ ifconfig eth0 down
+    $ ifconfig eth1 down
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
     $ wpa_supplicant -d -B -i mlan0 -c ./wifiap.conf
     $ sleep 5
@@ -164,6 +195,7 @@ Option 1
 Option 2
 
     $ ifconfig eth0 down
+    $ ifconfig eth1 down
     $ modprobe moal mod_para=nxp/wifi_mod_para.conf
     $ modprobe btnxpuart
     $ hciconfig hci0 up
@@ -226,6 +258,13 @@ After connectting the i.MX Matter device, you can check the Matter device inform
 
 Figure Device information and controls page
 
+
+<a name="known-issues"></a>
+
+## Known issues
+
+The Thread device commissioning feature on Home Assistant with 2025 Q1 release images is not very stable, so it is recommended to use Home Assistant with 2024 Q4 release image to evaluate the Thread device commissioning.
+
 ## FAQ
 
 ### What should do if the download fails or the download speed of the Docker image is very slow?
@@ -246,28 +285,29 @@ The download failure or slow download speed may be caused by network issues. Ple
 
 Please check the status of the Docker service, as well as the network status and the status of the Bluetooth interface.
 
-   $ systemctl status docker    # check the Docker service status
-   $ systemctl start docker     # start the Docker service
-   $ ifconfig mlan0             # check the Network status
-   $ hciconfig hci0             # check the Bluetooth status
+    $ systemctl status docker    # check the Docker service status
+    $ systemctl start docker     # start the Docker service
+    $ ifconfig mlan0             # check the Network status
+    $ hciconfig hci0             # check the Bluetooth status
 
 You need make sure that the Docker service is active, an IP has been assigned to the mlan0 interface, and that hci0 is up running.
 
-    root@imx93evk-iwxxx-matter:~# systemctl status docker
-    * docker.service - Docker Application Container Engine
-         Loaded: loaded (8;;file://imx93evk-iwxxx-matter/usr/lib/systemd/system/docker.service/usr/lib/systemd/system/docker.service8;;; disabled; preset: disabled)8;;
-         Active: active (running) since Tue 2024-10-22 07:09:36 UTC; 36s ago
-    TriggeredBy: * docker.socket
-           Docs: 8;;https://docs.docker.comhttps://docs.docker.com8;;8;;
-       Main PID: 681 (dockerd)
-          Tasks: 12
-         Memory: 98.1M (peak: 100.0M)
-            CPU: 1.345s
-         CGroup: /system.slice/docker.service
-             `-681 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
+        root@imx93evk-iwxxx-matter:~# systemctl status docker
+        * docker.service - Docker Application Container Engine
+            Loaded: loaded (8;;file://imx93evk-iwxxx-matter/usr/lib/systemd/system/docker.service/usr/lib/systemd/system/docker.service8;;; disabled; preset: disabled)8;;
+            Active: active (running) since Tue 2024-10-22 07:09:36 UTC; 36s ago
+        TriggeredBy: * docker.socket
+            Docs: 8;;https://docs.docker.comhttps://docs.docker.com8;;8;;
+        Main PID: 681 (dockerd)
+            Tasks: 12
+            Memory: 98.1M (peak: 100.0M)
+                CPU: 1.345s
+            CGroup: /system.slice/docker.service
+                `-681 /usr/bin/dockerd -H fd:// --containerd=/run/containerd/containerd.sock
 
-   root@imx93evk-iwxxx-matter:~# ifconfig mlan0
-   mlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
+        root@imx93evk-iwxxx-matter:~# ifconfig mlan0
+
+        mlan0: flags=4163<UP,BROADCAST,RUNNING,MULTICAST>  mtu 1500
         inet 192.168.3.119  netmask 255.255.254.0  broadcast 192.168.3.255
         inet6 2001:470:11e:f:a2cd:f3ff:fe77:e72e  prefixlen 64  scopeid 0x0<global>
         inet6 fe80::a2cd:f3ff:fe77:e72e  prefixlen 64  scopeid 0x20<link>
@@ -277,13 +317,13 @@ You need make sure that the Docker service is active, an IP has been assigned to
         TX packets 643  bytes 71774 (70.0 KiB)
         TX errors 0  dropped 0 overruns 0  carrier 0  collisions 0
 
-   root@imx93evk-iwxxx-matter:~# hciconfig hci0
-   hci0:   Type: Primary  Bus: UART
-           BD Address: A0:CD:F3:77:E7:2F  ACL MTU: 1021:7  SCO MTU: 120:6
-           UP RUNNING
-           RX bytes:849 acl:0 sco:0 events:57 errors:0
-           TX bytes:1078 acl:0 sco:0 commands:57 errors:0
+        root@imx93evk-iwxxx-matter:~# hciconfig hci0
+        hci0:   Type: Primary  Bus: UART
+                BD Address: A0:CD:F3:77:E7:2F  ACL MTU: 1021:7  SCO MTU: 120:6
+                UP RUNNING
+                RX bytes:849 acl:0 sco:0 events:57 errors:0
+                TX bytes:1078 acl:0 sco:0 commands:57 errors:0
 
 If the device is connected to a network cable, use the following command to turn off the ethernet interface.
 
-   $ ifconfig eth0 down
+        $ ifconfig eth0 down
