@@ -33,7 +33,7 @@ The following Matter related binaries will be installed into the Yocto image roo
  - chip-lighting-app-trusty: Matter lighting app with enhanced security on i.MX8M Mini
  - chip-all-clusters-app: Matter all-clusters demo
  - thermostat-app: Matter thermostat demo
- - nxp-thermostat-app: NXP customized thermostat application which used for Matter Certification
+ - nxp-thermostat-app: NXP customized thermostat application which is used for Matter Certification
  - nxp-thermostat-app-trusty: NXP customized thermostat application with enhanced security on i.MX8M Mini
  - chip-bridge-app: Matter bridge demo
  - imx-chip-bridge-app: NXP customized Zigbee bridge application
@@ -60,7 +60,7 @@ The following Matter related binaries will be installed into the Yocto image roo
 
 # i.MX MPU Matter platform
 
-We currently support 7 i.MX MPU platforms, which are the i.MX93 FRDM, the i.MX93 EVK, the i.MX8M Mini EVK, the i.MX6ULL EVK, the i.MX8ULP EVK, the i.MX91 EVK and the i.MX91 QSB,. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
+We currently support 7 i.MX MPU platforms, which are the i.MX93 FRDM, the i.MX93 EVK, the i.MX8M Mini EVK, the i.MX6ULL EVK, the i.MX8ULP EVK, the i.MX91 EVK and the i.MX91 QSB. For more details, please refer to the [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 <a name="How-to-build-the-Yocto-image"></a>
 
@@ -143,7 +143,7 @@ After execution of previous commands, the Yocto images will be generated:
 - ${MY_YOCTO}/bld-xwayland-imx91/tmp/deploy/images/imx91evk-iwxxx-matter/imx-image-multimedia-imx91evk-iwxxx-matter.wic.zst for i.MX91 EVK.
 - ${MY_YOCTO}/bld-xwayland-imx91qsb/tmp/deploy/images/imx91qsb-iwxxx-matter/imx-image-multimedia-imx91qsb-iwxxx-matter.wic.zst for i.MX91 QSB.
 
-The zst images are symbolic link files, so you should copy them to a dedicated folder ${MY_images} before unziping them.
+The zst images are symbolic link files, so you should copy them to a dedicated folder ${MY_images} before unzipping them.
 
     # For i.MX93 FRDM and i.MX93 EVK:
     $ cp ${MY_YOCTO}/bld-xwayland-imx93/tmp/deploy/images/imx93evk-iwxxx-matter/imx-image-multimedia-imx93evk-iwxxx-matter.wic.zst ${MY_images}
@@ -163,7 +163,7 @@ The zst images are symbolic link files, so you should copy them to a dedicated f
     # For i.MX91 QSB:
     $ cp ${MY_YOCTO}/bld-xwayland-imx91qsb/tmp/deploy/images/imx91qsb-iwxxx-matter/imx-image-multimedia-imx91qsb-iwxxx-matter.wic.zst ${MY_images}
 
-You can use the zstd and dd commands to flash the images to a microSD card for i.MX93 FRDM, i.MX93 EVK, i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX91 EVK and i.MX91 QSB. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 7 boards. The i.MX8ULP EVK supports only booting from EMMC, not from mircoSD. Other platfroms support both booting from EMMC and mircoSD images.
+You can use the zstd and dd commands to flash the images to a microSD card for i.MX93 FRDM, i.MX93 EVK, i.MX 8M Mini EVK, i.MX6ULL EVK, i.MX91 EVK and i.MX91 QSB. You can also use the [Universal Update Utility](https://github.com/nxp-imx/mfgtools) to flash the images for all 7 boards. The i.MX8ULP EVK supports only booting from EMMC, not from microSD. Other platforms support both booting from EMMC and microSD images.
 
 For use with the zstd and dd command method, please use the zstd command to unzip this .zst archive, and then use the dd command to program the output file to a microSD card.
 
@@ -221,7 +221,7 @@ ___Before flashing the image, follow the prompts on the board to put the board i
 The prebuilt images for i.MX93 FRDM, i.MX93 EVK, i.MX8M Mini EVK, i.MX6ULL EVK, i.MX8ULP EVK, i.MX91 EVK and i.MX91 QSB can be downloaded from [NXP i.MX MPU Matter Platform](https://www.nxp.com/design/development-boards/i-mx-evaluation-and-development-boards/mpu-linux-hosted-matter-development-platform:MPU-LINUX-MATTER-DEV-PLATFORM).
 
 __Note: For i.MX93 FRDM, it is essential to modify the fdtfile for it to work properly.__
-You should enter uboot mode and run follow commands to set the fdtfile, save fdtfile setting, and boot the board.
+You should enter uboot mode and run the following commands to set the fdtfile, save fdtfile setting, and boot the board.
 
     u-boot=> print fdtfile
     fdtfile=imx93-11x11-evk-ffu_gpio_irq.dtb
@@ -269,7 +269,7 @@ Then, install the Yocto SDK, by running the SDK installation script with root pe
     $ sudo tmp/deploy/sdk/fsl-imx-xwayland-glibc-x86_64-imx-image-multimedia-cortexa7t2hf-neon-imx6ullevk-toolchain-6.12-styhead.sh
 
 The SDK installation directory will be prompted during the SDK installation; user can specify the installation directory, or keep the default one \${/opt/fsl-imx-xwayland/}.
-___Please use board specific paths if you need to build the SDK for several boards EVK; for exmaple, you can use /opt/fsl-imx-xwayland/6.12-styhead-imx8n9 for i.MX93 FRDM, i.MX93 EVK, i.MX8M Mini EVK, i.MX8ULP EVK, i.MX91 EVK and i.MX91 QSB, /opt/fsl-imx-xwayland/6.12-styhead-imx6ull for i.MX6ULL EVK.___
+___Please use board specific paths if you need to build the SDK for several boards EVK; for example, you can use /opt/fsl-imx-xwayland/6.12-styhead-imx8n9 for i.MX93 FRDM, i.MX93 EVK, i.MX8M Mini EVK, i.MX8ULP EVK, i.MX91 EVK and i.MX91 QSB, /opt/fsl-imx-xwayland/6.12-styhead-imx6ull for i.MX6ULL EVK.___
 
     NXP i.MX Release Distro SDK installer version 6.12-styhead
     ============================================================
@@ -296,7 +296,7 @@ Fetch the latest otbr source code and execute the build for OTBR:
     $ mkdir ${PROTOC_DIR}
     $ cd ${PROTOC_DIR}
     $ wget https://github.com/protocolbuffers/protobuf/releases/download/v25.3/protoc-25.3-linux-x86_64.zip
-    $ unzip protoc-25.-linux-x86_64.zip
+    $ unzip protoc-25.3-linux-x86_64.zip
     $ cd ../ot-br-posix
 
     # For i.MX8M Mini EVK and i.MX8ULP EVK
@@ -350,7 +350,7 @@ Please rename the ot-ctl to ot-client-ctl and then copy ot-daemon and ot-client-
 
 <a name="How-to-setup-OTBR-OT"></a>
 
-# How to setup OpenThread Border Router and Openther Deamon on the target
+# How to setup OpenThread Border Router and OpenThread Daemon on the target
 
 Use below commands to connect the OTBR to the Wi-Fi access point:
 
